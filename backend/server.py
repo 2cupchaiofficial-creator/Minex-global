@@ -34,16 +34,16 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Set database reference for email service and ROI scheduler
-email_service.set_db(db)
-roi_scheduler.set_dependencies(db, email_service)
-logger.info(f"Email service configured: {email_service.is_configured}, Sender: {email_service.sender_email}")
-
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Set database reference for email service and ROI scheduler
+email_service.set_db(db)
+roi_scheduler.set_dependencies(db, email_service)
+logger.info(f"Email service configured: {email_service.is_configured}, Sender: {email_service.sender_email}")
 
 # Helper Functions
 async def get_current_user(authorization: Optional[str] = Header(None)) -> User:
