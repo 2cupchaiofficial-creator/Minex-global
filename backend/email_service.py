@@ -339,6 +339,41 @@ class EmailService:
         html_content = self._get_email_template("Password Changed", content)
         return await self.send_email(to_email, "MINEX GLOBAL - Password Changed", html_content, "password_change")
 
+    async def send_staking_completed_notification(self, to_email: str, user_name: str, capital_amount: float, total_earned: float) -> bool:
+        """Send staking package completion notification"""
+        total_return = capital_amount + total_earned
+        content = f"""
+        <p style="font-size: 16px; line-height: 1.6; color: #9ca3af;">Hello {user_name},</p>
+        <p style="font-size: 16px; line-height: 1.6; color: #9ca3af;">Great news! Your staking package has <span style="background: linear-gradient(90deg, #22c55e, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold;">completed successfully</span>!</p>
+        <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 20px; text-align: center; margin: 30px 0;">
+            <div style="font-size: 14px; color: #9ca3af; margin-bottom: 10px;">Capital Returned to Cash Wallet</div>
+            <div style="font-size: 48px; font-weight: bold; color: #22c55e;">${capital_amount:,.2f}</div>
+        </div>
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px;">
+            <tr>
+                <td style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); color: #6b7280;">Original Investment</td>
+                <td style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); color: #ffffff; font-weight: bold; text-align: right;">${capital_amount:,.2f}</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); color: #6b7280;">Total ROI Earned</td>
+                <td style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); color: #22c55e; font-weight: bold; text-align: right;">${total_earned:,.2f}</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px 0; color: #6b7280; font-weight: bold;">Total Return</td>
+                <td style="padding: 12px 0; color: #3b82f6; font-weight: bold; text-align: right; font-size: 16px;">${total_return:,.2f}</td>
+            </tr>
+        </table>
+        <hr style="border: none; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); margin: 20px 0;" />
+        <p style="font-size: 16px; color: #9ca3af;">Your capital is now available in your Cash Wallet. You can:</p>
+        <ul style="list-style: none; padding: 0; margin: 20px 0; color: #9ca3af;">
+            <li style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">✓ Withdraw your funds</li>
+            <li style="padding: 8px 0;">✓ Re-invest in a new staking package</li>
+        </ul>
+        """
+        
+        html_content = self._get_email_template("Staking Completed! 🎉", content)
+        return await self.send_email(to_email, "MINEX GLOBAL - Staking Package Completed", html_content, "staking_completed")
+
 
 # Global instance
 email_service = EmailService()
