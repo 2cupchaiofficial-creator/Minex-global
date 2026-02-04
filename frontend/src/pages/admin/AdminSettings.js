@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { adminAPI } from '@/api';
 import { toast } from 'sonner';
-import { Save, Settings as SettingsIcon, Upload, Image, X, Calendar, Calculator, Clock, Play, Mail } from 'lucide-react';
+import { Save, Settings as SettingsIcon, Upload, Image, X, Calendar, Calculator, Clock, Play, Mail, DollarSign, Percent } from 'lucide-react';
 
 const AdminSettings = () => {
   const [settings, setSettings] = useState({
