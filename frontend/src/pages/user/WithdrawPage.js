@@ -243,7 +243,7 @@ const WithdrawPage = () => {
         >
           <h2 className="text-lg md:text-xl font-bold text-white mb-5">Request Withdrawal</h2>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handlePreSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Amount (USD)</label>
               <input
@@ -260,6 +260,11 @@ const WithdrawPage = () => {
               <div className="text-xs text-gray-500 mt-2">
                 Maximum: {formatCurrency(withdrawableBalance)}
               </div>
+              {settings?.withdrawal_charge_value > 0 && (
+                <p className="text-xs text-yellow-400 mt-1">
+                  Note: A {settings.withdrawal_charge_type === 'percentage' ? `${settings.withdrawal_charge_value}%` : `$${settings.withdrawal_charge_value}`} withdrawal charge will be applied
+                </p>
+              )}
             </div>
 
             <div>
@@ -296,9 +301,77 @@ const WithdrawPage = () => {
               data-testid="submit-withdrawal-btn"
             >
               <Send className="w-5 h-5" />
-              {loading ? 'Submitting...' : 'Submit Withdrawal Request'}
+              {loading ? 'Submitting...' : 'Review & Submit Request'}
             </button>
           </form>
+
+          {/* Confirmation Modal */}
+          {showConfirmation && chargeDetails && (
+            <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" data-testid="withdrawal-confirmation-modal">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="glass rounded-2xl p-6 max-w-md w-full"
+              >
+                <h3 className="text-xl font-bold text-white mb-4">Confirm Withdrawal</h3>
+                
+                <div className="space-y-4 mb-6">
+                  <div className="flex justify-between items-center py-2 border-b border-gray-800">
+                    <span className="text-gray-400">Withdrawal Amount</span>
+                    <span className="text-white font-bold">{formatCurrency(chargeDetails.grossAmount)}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center py-2 border-b border-gray-800">
+                    <span className="text-gray-400">
+                      Charge ({chargeDetails.chargeType === 'percentage' ? `${chargeDetails.chargeValue}%` : 'Fixed'})
+                    </span>
+                    <span className="text-red-400 font-bold">-{formatCurrency(chargeDetails.charge)}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center py-3 bg-green-500/10 rounded-lg px-3">
+                    <span className="text-green-400 font-medium">You Will Receive</span>
+                    <span className="text-green-400 font-bold text-xl">{formatCurrency(chargeDetails.netAmount)}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center py-2 border-b border-gray-800">
+                    <span className="text-gray-400">To Wallet</span>
+                    <span className="text-white font-mono text-xs">{formData.wallet_address.substring(0, 15)}...</span>
+                  </div>
+                </div>
+
+                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 mb-6">
+                  <div className="flex gap-2 items-start">
+                    <AlertCircle className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-yellow-200">
+                      By confirming, you agree that the withdrawal charge will be deducted from your withdrawal amount.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowConfirmation(false);
+                      setChargeDetails(null);
+                    }}
+                    className="flex-1 btn-secondary"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    className="flex-1 btn-primary"
+                    data-testid="confirm-withdrawal-btn"
+                  >
+                    {loading ? 'Processing...' : 'Confirm Withdrawal'}
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
         </motion.div>
       )}
 
