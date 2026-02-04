@@ -203,7 +203,7 @@ const DepositPage = () => {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handlePreSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Amount (USD) *</label>
               <input
@@ -216,6 +216,11 @@ const DepositPage = () => {
                 required
                 data-testid="amount-input"
               />
+              {settings?.deposit_charge_value > 0 && (
+                <p className="text-xs text-yellow-400 mt-2">
+                  Note: A {settings.deposit_charge_type === 'percentage' ? `${settings.deposit_charge_value}%` : `$${settings.deposit_charge_value}`} deposit charge will be applied
+                </p>
+              )}
             </div>
 
             <div>
@@ -258,9 +263,72 @@ const DepositPage = () => {
               className="w-full btn-primary text-lg py-4"
               data-testid="submit-deposit-btn"
             >
-              {loading ? 'Submitting...' : 'Submit Deposit'}
+              {loading ? 'Submitting...' : 'Review & Submit Deposit'}
             </button>
           </form>
+
+          {/* Confirmation Modal */}
+          {showConfirmation && chargeDetails && (
+            <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" data-testid="deposit-confirmation-modal">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="glass rounded-2xl p-6 max-w-md w-full"
+              >
+                <h3 className="text-xl font-bold text-white mb-4">Confirm Deposit</h3>
+                
+                <div className="space-y-4 mb-6">
+                  <div className="flex justify-between items-center py-2 border-b border-gray-800">
+                    <span className="text-gray-400">Deposit Amount</span>
+                    <span className="text-white font-bold">{formatCurrency(chargeDetails.grossAmount)}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center py-2 border-b border-gray-800">
+                    <span className="text-gray-400">
+                      Charge ({chargeDetails.chargeType === 'percentage' ? `${chargeDetails.chargeValue}%` : 'Fixed'})
+                    </span>
+                    <span className="text-red-400 font-bold">-{formatCurrency(chargeDetails.charge)}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center py-3 bg-green-500/10 rounded-lg px-3">
+                    <span className="text-green-400 font-medium">You Will Receive</span>
+                    <span className="text-green-400 font-bold text-xl">{formatCurrency(chargeDetails.netAmount)}</span>
+                  </div>
+                </div>
+
+                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 mb-6">
+                  <div className="flex gap-2 items-start">
+                    <AlertCircle className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-yellow-200">
+                      By confirming, you agree that the deposit charge will be deducted from your deposit amount.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowConfirmation(false);
+                      setChargeDetails(null);
+                    }}
+                    className="flex-1 btn-secondary"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    className="flex-1 btn-primary"
+                    data-testid="confirm-deposit-btn"
+                  >
+                    {loading ? 'Processing...' : 'Confirm Deposit'}
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
         </motion.div>
       )}
 
