@@ -39,7 +39,11 @@ const AdminSettings = () => {
           ...response.data,
           withdrawal_dates: response.data.withdrawal_dates || [1, 15],
           roi_distribution_hour: response.data.roi_distribution_hour || 0,
-          roi_distribution_minute: response.data.roi_distribution_minute || 0
+          roi_distribution_minute: response.data.roi_distribution_minute || 0,
+          deposit_charge_type: response.data.deposit_charge_type || 'percentage',
+          deposit_charge_value: response.data.deposit_charge_value || 0,
+          withdrawal_charge_type: response.data.withdrawal_charge_type || 'percentage',
+          withdrawal_charge_value: response.data.withdrawal_charge_value || 0
         });
       }
     } catch (error) {
