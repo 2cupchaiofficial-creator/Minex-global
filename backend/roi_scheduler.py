@@ -161,18 +161,19 @@ class ROIScheduler:
         total_profit_share_distributed = 0.0
         users_notified = 0
         completed_stakes = 0
+        capital_returned_total = 0.0
         
         for stake in active_stakes:
             try:
                 user_id = stake["user_id"]
                 amount = stake["amount"]
                 daily_roi = stake.get("daily_roi", 0)
-                
-                if daily_roi <= 0:
-                    continue
+                stake_id = stake.get("staking_id") or stake.get("staking_entry_id")
                 
                 # Check if package duration completed
                 end_date_str = stake.get("end_date", "")
+                package_expired = False
+                
                 if end_date_str:
                     try:
                         if isinstance(end_date_str, str):
@@ -181,26 +182,72 @@ class ROIScheduler:
                             end_date = end_date_str
                             
                         if datetime.now(timezone.utc) >= end_date:
-                            # Mark as completed and return capital
-                            if not stake.get("capital_returned", False):
-                                stake_id = stake.get("staking_id") or stake.get("staking_entry_id")
-                                await self.db.staking.update_one(
-                                    {"staking_id": stake_id},
-                                    {"$set": {"status": "completed", "capital_returned": True}}
-                                )
-                                await self.db.users.update_one(
-                                    {"user_id": user_id},
-                                    {"$inc": {"wallet_balance": amount}}
-                                )
-                                completed_stakes += 1
-                                logger.info(f"Stake completed, capital returned: {stake_id}")
-                            continue
+                            package_expired = True
                     except Exception as e:
-                        logger.warning(f"Error parsing end date for stake {stake['staking_entry_id']}: {e}")
+                        logger.warning(f"Error parsing end date for stake {stake_id}: {e}")
+                
+                # If package expired, return capital to cash wallet
+                if package_expired and not stake.get("capital_returned", False):
+                    # Mark stake as completed
+                    await self.db.staking.update_one(
+                        {"staking_id": stake_id},
+                        {"$set": {
+                            "status": "completed",
+                            "capital_returned": True,
+                            "completed_at": datetime.now(timezone.utc).isoformat()
+                        }}
+                    )
+                    
+                    # Transfer capital to cash wallet (wallet_balance) and reduce staked_amount
+                    await self.db.users.update_one(
+                        {"user_id": user_id},
+                        {"$inc": {
+                            "wallet_balance": amount,  # Add to cash wallet
+                            "staked_amount": -amount   # Reduce staked amount
+                        }}
+                    )
+                    
+                    # Create transaction record for capital return
+                    capital_return_doc = {
+                        "transaction_id": str(uuid.uuid4()),
+                        "user_id": user_id,
+                        "staking_id": stake_id,
+                        "type": "capital_return",
+                        "amount": amount,
+                        "description": f"Staking package completed - Capital returned to cash wallet",
+                        "created_at": datetime.now(timezone.utc).isoformat()
+                    }
+                    await self.db.transactions.insert_one(capital_return_doc)
+                    
+                    completed_stakes += 1
+                    capital_returned_total += amount
+                    logger.info(f"Stake {stake_id} completed, capital ${amount} returned to user {user_id}")
+                    
+                    # Send notification email
+                    if self.email_service:
+                        user = await self.db.users.find_one({"user_id": user_id}, {"_id": 0})
+                        if user:
+                            try:
+                                await self.email_service.send_staking_completed_notification(
+                                    user["email"],
+                                    user["full_name"],
+                                    amount,
+                                    stake.get("total_earned", 0)
+                                )
+                            except Exception as e:
+                                logger.warning(f"Failed to send staking completion email: {e}")
+                    
+                    continue  # Don't distribute ROI for completed stakes
+                
+                # Skip if already completed
+                if stake.get("status") == "completed" or stake.get("capital_returned", False):
+                    continue
+                
+                if daily_roi <= 0:
+                    continue
                 
                 # Calculate and distribute ROI
                 roi_amount = amount * (daily_roi / 100)
-                stake_id = stake.get("staking_id") or stake.get("staking_entry_id")
                 
                 # Create ROI transaction
                 roi_doc = {
@@ -264,7 +311,7 @@ class ROIScheduler:
                             logger.warning(f"Failed to send ROI notification to {user['email']}: {e}")
                 
             except Exception as e:
-                logger.error(f"Error processing stake {stake.get('staking_entry_id')}: {e}")
+                logger.error(f"Error processing stake {stake.get('staking_id', 'unknown')}: {e}")
                 continue
         
         # Log the distribution run
@@ -276,6 +323,7 @@ class ROIScheduler:
             "total_roi_distributed": total_roi_distributed,
             "users_notified": users_notified,
             "stakes_completed": completed_stakes,
+            "capital_returned_total": capital_returned_total,
             "status": "success"
         }
         await self.db.system_logs.insert_one(distribution_log)
@@ -289,6 +337,7 @@ class ROIScheduler:
             "total_roi_distributed": total_roi_distributed,
             "users_notified": users_notified,
             "stakes_completed": completed_stakes,
+            "capital_returned_total": capital_returned_total,
             "run_time": self.last_run.isoformat(),
             "next_run": self.next_run.isoformat() if self.next_run else None
         }
