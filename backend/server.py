@@ -13,6 +13,10 @@ import uuid
 from datetime import datetime, timezone, timedelta
 import base64
 
+# Load environment variables FIRST before importing local modules
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / '.env')
+
 from models import (
     User, UserCreate, UserLogin, UserResponse, UserRole,
     MembershipPackage, StakingPackage, Deposit, DepositCreate, DepositStatus,
