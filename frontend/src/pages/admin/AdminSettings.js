@@ -12,7 +12,11 @@ const AdminSettings = () => {
     community_star_bonus_min: 100.0,
     community_star_bonus_max: 1000.0,
     roi_distribution_hour: 0,
-    roi_distribution_minute: 0
+    roi_distribution_minute: 0,
+    deposit_charge_type: 'percentage',
+    deposit_charge_value: 0,
+    withdrawal_charge_type: 'percentage',
+    withdrawal_charge_value: 0
   });
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
