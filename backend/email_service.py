@@ -30,15 +30,26 @@ class EmailService:
     
     def initialize(self):
         """Initialize email service after environment variables are loaded"""
+        global RESEND_AVAILABLE
+        
+        # Re-check if resend is available
+        try:
+            import resend
+            RESEND_AVAILABLE = True
+        except ImportError:
+            RESEND_AVAILABLE = False
+            logger.warning("Resend not installed - emails will be logged to database")
+            
         self.api_key = os.environ.get('RESEND_API_KEY')
         self.sender_email = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
         self.is_configured = bool(self.api_key) and RESEND_AVAILABLE
         
         if self.is_configured:
+            import resend
             resend.api_key = self.api_key
             logger.info(f"Resend email service configured with sender: {self.sender_email}")
         else:
-            logger.warning("Resend not configured - emails will be logged to database")
+            logger.warning(f"Resend not configured - API Key: {'Set' if self.api_key else 'Missing'}, Available: {RESEND_AVAILABLE}")
         
     def set_db(self, db):
         """Set database reference for logging emails"""
