@@ -288,6 +288,10 @@ class ROITransaction(BaseModel):
     roi_percentage: float
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+class ChargeType(str, Enum):
+    PERCENTAGE = "percentage"
+    FIXED = "fixed"
+
 class AdminSettings(BaseModel):
     model_config = ConfigDict(extra="ignore")
     
@@ -298,6 +302,14 @@ class AdminSettings(BaseModel):
     community_star_target: float = 28.0
     community_star_bonus_min: float = 100.0
     community_star_bonus_max: float = 1000.0
+    # Deposit/Withdrawal Charges
+    deposit_charge_type: str = "percentage"  # "percentage" or "fixed"
+    deposit_charge_value: float = 0.0  # Percentage or fixed amount
+    withdrawal_charge_type: str = "percentage"  # "percentage" or "fixed"
+    withdrawal_charge_value: float = 0.0  # Percentage or fixed amount
+    # ROI Settings
+    roi_distribution_hour: int = 0
+    roi_distribution_minute: int = 0
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class DashboardStats(BaseModel):
