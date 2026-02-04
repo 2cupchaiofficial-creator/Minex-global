@@ -859,10 +859,26 @@ async def create_withdrawal(withdrawal_data: WithdrawalCreate, current_user: Use
                 detail=f"Withdrawals are only allowed on days: {', '.join(map(str, withdrawal_dates))}"
             )
     
+    # Calculate withdrawal charge
+    charge_type = settings.get("withdrawal_charge_type", "percentage") if settings else "percentage"
+    charge_value = settings.get("withdrawal_charge_value", 0.0) if settings else 0.0
+    
+    if charge_type == "percentage":
+        withdrawal_charge = withdrawal_data.amount * (charge_value / 100)
+    else:  # fixed
+        withdrawal_charge = charge_value
+    
+    # Net amount after charge (what user receives)
+    net_amount = withdrawal_data.amount - withdrawal_charge
+    
     withdrawal_doc = {
         "withdrawal_id": str(uuid.uuid4()),
         "user_id": current_user.user_id,
         "amount": withdrawal_data.amount,
+        "withdrawal_charge": withdrawal_charge,
+        "net_amount": net_amount,
+        "charge_type": charge_type,
+        "charge_value": charge_value,
         "wallet_address": withdrawal_data.wallet_address,
         "status": WithdrawalStatus.PENDING,
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -876,7 +892,7 @@ async def create_withdrawal(withdrawal_data: WithdrawalCreate, current_user: Use
     withdrawal_doc.pop("_id", None)
     withdrawal_doc["status"] = withdrawal_doc["status"].value
     
-    # Deduct from balances (prefer commission first, then ROI)
+    # Deduct FULL amount from balances (charge is taken from this)
     remaining = withdrawal_data.amount
     commission_deduct = min(remaining, current_user.commission_balance)
     remaining -= commission_deduct
