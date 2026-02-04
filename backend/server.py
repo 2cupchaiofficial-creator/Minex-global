@@ -1177,7 +1177,8 @@ async def approve_deposit(deposit_id: str, admin: User = Depends(get_admin_user)
         }}
     )
     
-    amount = deposit["amount"]
+    # Use net_amount (after charges) for crediting user
+    amount = deposit.get("net_amount", deposit["amount"])
     user_id = deposit["user_id"]
     
     await db.users.update_one(
