@@ -16,6 +16,8 @@ const WithdrawPage = () => {
     wallet_address: ''
   });
   const [showForm, setShowForm] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [chargeDetails, setChargeDetails] = useState(null);
 
   useEffect(() => {
     loadData();
