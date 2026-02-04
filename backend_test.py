@@ -6,7 +6,7 @@ import base64
 import io
 
 class MinexAPITester:
-    def __init__(self, base_url="https://minex-repo.preview.emergentagent.com"):
+    def __init__(self, base_url="http://localhost:8001"):
         self.base_url = base_url
         self.admin_token = None
         self.user_token = None
