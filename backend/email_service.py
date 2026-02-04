@@ -13,12 +13,12 @@ import uuid
 logger = logging.getLogger(__name__)
 
 # Try to import Resend
+RESEND_AVAILABLE = False
 try:
     import resend
     RESEND_AVAILABLE = True
 except ImportError:
-    RESEND_AVAILABLE = False
-    logger.warning("Resend not installed - emails will be logged to database")
+    pass
 
 
 class EmailService:
