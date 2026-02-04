@@ -223,6 +223,112 @@ const AdminSettings = () => {
           </div>
         </div>
 
+        {/* Deposit & Withdrawal Charges */}
+        <div className="glass rounded-xl p-5 md:p-6">
+          <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
+            <DollarSign className="w-5 h-5" />
+            Transaction Charges
+          </h2>
+          
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Deposit Charges */}
+            <div className="bg-green-500/5 border border-green-500/20 rounded-lg p-4">
+              <h3 className="text-md font-semibold text-green-400 mb-4 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-400"></span>
+                Deposit Charges
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Charge Type</label>
+                  <select
+                    value={settings.deposit_charge_type}
+                    onChange={(e) => setSettings({ ...settings, deposit_charge_type: e.target.value })}
+                    className="w-full bg-gray-900/50 border border-gray-800 focus:border-blue-500 rounded-lg px-4 py-3 text-white"
+                    data-testid="deposit-charge-type"
+                  >
+                    <option value="percentage">Percentage (%)</option>
+                    <option value="fixed">Fixed Amount ($)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Charge Value {settings.deposit_charge_type === 'percentage' ? '(%)' : '($)'}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={settings.deposit_charge_value}
+                      onChange={(e) => setSettings({ ...settings, deposit_charge_value: parseFloat(e.target.value) || 0 })}
+                      className="w-full bg-gray-900/50 border border-gray-800 focus:border-blue-500 rounded-lg px-4 py-3 text-white pr-10"
+                      placeholder="0"
+                      data-testid="deposit-charge-value"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+                      {settings.deposit_charge_type === 'percentage' ? <Percent className="w-4 h-4" /> : <DollarSign className="w-4 h-4" />}
+                    </span>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  {settings.deposit_charge_type === 'percentage' 
+                    ? `${settings.deposit_charge_value}% will be deducted from deposits`
+                    : `$${settings.deposit_charge_value} will be deducted from each deposit`
+                  }
+                </p>
+              </div>
+            </div>
+
+            {/* Withdrawal Charges */}
+            <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-4">
+              <h3 className="text-md font-semibold text-red-400 mb-4 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-red-400"></span>
+                Withdrawal Charges
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Charge Type</label>
+                  <select
+                    value={settings.withdrawal_charge_type}
+                    onChange={(e) => setSettings({ ...settings, withdrawal_charge_type: e.target.value })}
+                    className="w-full bg-gray-900/50 border border-gray-800 focus:border-blue-500 rounded-lg px-4 py-3 text-white"
+                    data-testid="withdrawal-charge-type"
+                  >
+                    <option value="percentage">Percentage (%)</option>
+                    <option value="fixed">Fixed Amount ($)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Charge Value {settings.withdrawal_charge_type === 'percentage' ? '(%)' : '($)'}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={settings.withdrawal_charge_value}
+                      onChange={(e) => setSettings({ ...settings, withdrawal_charge_value: parseFloat(e.target.value) || 0 })}
+                      className="w-full bg-gray-900/50 border border-gray-800 focus:border-blue-500 rounded-lg px-4 py-3 text-white pr-10"
+                      placeholder="0"
+                      data-testid="withdrawal-charge-value"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+                      {settings.withdrawal_charge_type === 'percentage' ? <Percent className="w-4 h-4" /> : <DollarSign className="w-4 h-4" />}
+                    </span>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  {settings.withdrawal_charge_type === 'percentage' 
+                    ? `${settings.withdrawal_charge_value}% will be deducted from withdrawals`
+                    : `$${settings.withdrawal_charge_value} will be deducted from each withdrawal`
+                  }
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Withdrawal Settings */}
         <div className="glass rounded-xl p-5 md:p-6">
           <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
