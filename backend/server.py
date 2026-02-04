@@ -776,10 +776,29 @@ async def get_all_transactions(current_user: User = Depends(get_current_user)):
 
 @api_router.post("/deposits")
 async def create_deposit(deposit_data: DepositCreate, current_user: User = Depends(get_current_user)):
+    # Get settings for charge calculation
+    settings = await db.admin_settings.find_one({"settings_id": "default"}, {"_id": 0})
+    
+    # Calculate deposit charge
+    charge_type = settings.get("deposit_charge_type", "percentage") if settings else "percentage"
+    charge_value = settings.get("deposit_charge_value", 0.0) if settings else 0.0
+    
+    if charge_type == "percentage":
+        deposit_charge = deposit_data.amount * (charge_value / 100)
+    else:  # fixed
+        deposit_charge = charge_value
+    
+    # Net amount after charge (what user gets credited)
+    net_amount = deposit_data.amount - deposit_charge
+    
     deposit_doc = {
         "deposit_id": str(uuid.uuid4()),
         "user_id": current_user.user_id,
         "amount": deposit_data.amount,
+        "deposit_charge": deposit_charge,
+        "net_amount": net_amount,
+        "charge_type": charge_type,
+        "charge_value": charge_value,
         "payment_method": deposit_data.payment_method,
         "transaction_hash": deposit_data.transaction_hash,
         "screenshot_url": deposit_data.screenshot_url,
