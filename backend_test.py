@@ -606,6 +606,11 @@ def main():
         ("Investment Packages (6 Levels)", tester.test_investment_packages),
         ("Live Crypto Prices", tester.test_crypto_prices),
         ("Admin Login", tester.test_admin_login),
+        
+        # Transaction Charges Feature Testing
+        ("Admin Update Transaction Charges", tester.test_admin_update_transaction_charges),
+        ("Verify Transaction Charges Persistence", tester.test_settings_persistence),
+        
         ("Admin Dashboard (with fix attempt)", tester.test_admin_dashboard_with_fix),
         
         # Additional backend tests
@@ -620,16 +625,16 @@ def main():
         ("User Team", tester.test_get_team),
         ("User Commissions", tester.test_get_commissions),
         
-        # Deposit flow
-        ("Create Deposit", tester.test_create_deposit),
+        # Deposit flow with charges
+        ("Create Deposit with Charges", tester.test_deposit_with_charges),
         ("Get User Deposits", tester.test_get_deposits),
         
         # Admin operations (if admin login works)
         ("Admin Get Deposits", tester.test_admin_get_deposits),
         ("Approve Deposit", tester.test_approve_deposit),
         
-        # Withdrawal flow
-        ("Create Withdrawal (Expected Insufficient Balance)", tester.test_create_withdrawal),
+        # Withdrawal flow with charges
+        ("Create Withdrawal with Charges (Expected Insufficient Balance)", tester.test_withdrawal_with_charges),
         ("Admin Get Withdrawals", tester.test_admin_get_withdrawals),
         
         # ROI calculation
