@@ -1,0 +1,26 @@
+{
+  "short_name": "MINEX",
+  "name": "MINEX GLOBAL - Crypto Investment Platform",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#0a0a0f",
+  "background_color": "#0a0a0f",
+  "description": "MINEX GLOBAL - Premier Crypto Investment Platform. Earn daily ROI with secure staking packages."
+}

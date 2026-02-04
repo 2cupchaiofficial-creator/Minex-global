@@ -1,0 +1,163 @@
+{
+  "project_name": "MINEX GLOBAL",
+  "design_philosophy": {
+    "identity": "E1: The Anti-AI Designer",
+    "core_principles": [
+      "Fusion over Imitation: Mix Fintech precision with Gaming aesthetics",
+      "Emotion First: Evoke 'Wealth' and 'Future' through deep space vibes",
+      "Content is King: Data must be legible but beautiful",
+      "Negative Space: Use deep black voids to make neon pop",
+      "Contrast: High-contrast text for readability against dark backgrounds"
+    ],
+    "anti_patterns": [
+      "No generic 'Bootstrap' layouts",
+      "No flat, solid colors for main backgrounds (use gradients/noise)",
+      "No 'Inter' for headings",
+      "No center-aligned text blocks unless for dramatic effect"
+    ]
+  },
+  "typography": {
+    "font_family": {
+      "headings": "Unbounded, sans-serif",
+      "body": "Plus Jakarta Sans, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "import_url": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Unbounded:wght@400;600;700;900&display=swap",
+    "usage_rules": {
+      "headings": "Use 'Unbounded' for all H1-H3. Tracking tight (-0.02em). Weight 700 or 900.",
+      "body": "Use 'Plus Jakarta Sans' for all UI text. High legibility.",
+      "numbers": "Use 'JetBrains Mono' for financial data, tickers, and hash IDs.",
+      "uppercase": "Use uppercase with wide tracking (0.1em) for labels (e.g., 'ROI', 'LEVEL')."
+    }
+  },
+  "colors": {
+    "theme": "dark",
+    "palette": {
+      "background": {
+        "default": "#02040A",
+        "paper": "#0B0F19",
+        "subtle": "#111827"
+      },
+      "primary": {
+        "main": "#6366f1",
+        "gradient_start": "#3b82f6",
+        "gradient_end": "#8b5cf6",
+        "glow": "0 0 20px rgba(99, 102, 241, 0.5)"
+      },
+      "accent": {
+        "success": "#10b981",
+        "warning": "#f59e0b",
+        "error": "#ef4444",
+        "info": "#06b6d4"
+      },
+      "text": {
+        "primary": "#f8fafc",
+        "secondary": "#94a3b8",
+        "muted": "#475569"
+      },
+      "glass": {
+        "background": "rgba(2, 4, 10, 0.6)",
+        "border": "rgba(255, 255, 255, 0.08)",
+        "highlight": "rgba(255, 255, 255, 0.05)"
+      }
+    },
+    "gradients": {
+      "hero": "linear-gradient(135deg, #02040A 0%, #0f172a 100%)",
+      "brand": "linear-gradient(to right, #3b82f6, #8b5cf6)",
+      "card_hover": "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%)",
+      "text_gradient": "linear-gradient(to right, #60a5fa, #c084fc)"
+    }
+  },
+  "layout": {
+    "spacing_scale": "Generous. Use p-6, p-8, p-12 for containers.",
+    "grid_system": {
+      "marketing": "Tetris Grid (12 cols). Asymmetrical spans.",
+      "dashboard": "Bento Grid (4 cols). Dense, gap-4 or gap-6."
+    },
+    "containers": {
+      "max_width": "max-w-7xl",
+      "padding": "px-4 md:px-8"
+    },
+    "z_index": {
+      "background": -1,
+      "content": 10,
+      "sticky": 40,
+      "overlay": 50,
+      "modal": 100
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white shadow-[0_0_20px_rgba(79,70,229,0.3)] rounded-full px-8 py-3 font-semibold transition-all hover:scale-105",
+      "secondary": "bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-full px-6 py-2 backdrop-blur-md transition-all",
+      "ghost": "text-gray-400 hover:text-white transition-colors"
+    },
+    "cards": {
+      "glass": "bg-gray-950/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl hover:border-white/20 transition-all duration-300 group relative overflow-hidden",
+      "solid": "bg-[#0B0F19] border border-gray-800 rounded-xl"
+    },
+    "inputs": {
+      "style": "bg-gray-900/50 border border-gray-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg px-4 py-3 text-white placeholder:text-gray-600 transition-all"
+    },
+    "navigation": {
+      "glass_header": "fixed top-0 w-full z-50 bg-gray-950/70 backdrop-blur-lg border-b border-white/5"
+    }
+  },
+  "visual_enhancers": {
+    "effects": [
+      "Tracing Beam: Animated gradient borders on high-value cards",
+      "Noise Texture: Subtle grain overlay on backgrounds (opacity 0.03)",
+      "Glow Orbs: Blurred colored circles behind key elements"
+    ],
+    "animations": {
+      "library": "framer-motion",
+      "types": {
+        "fade_up": { "initial": { "opacity": 0, "y": 20 }, "animate": { "opacity": 1, "y": 0 } },
+        "scale_in": { "initial": { "scale": 0.9, "opacity": 0 }, "animate": { "scale": 1, "opacity": 1 } },
+        "hover_lift": { "y": -5 }
+      }
+    }
+  },
+  "assets": {
+    "images": {
+      "hero_bg": "https://images.unsplash.com/photo-1676911809746-85d90edbbe4a?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "crypto_coins": "https://images.unsplash.com/photo-1639454276085-9f55d2db6570?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "data_viz": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "abstract_purple": "https://images.unsplash.com/photo-1657127791477-21735aed67ac?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "logo_placeholder": "Use text 'MINEX' with Unbounded font, gradient Blue to Purple on the 'X'"
+    },
+    "icons": "lucide-react (default), use 'Wallet', 'TrendingUp', 'Users', 'Shield', 'Zap' for key features"
+  },
+  "content_rules": {
+    "membership_tiers": [
+      { "level": 1, "min": 50, "roi": 1.8, "annual": 657 },
+      { "level": 2, "min": 500, "roi": 2.1, "annual": 766.5, "req": "3 Direct, 4 Indirect" },
+      { "level": 3, "min": 2000, "roi": 2.5, "annual": 912.5, "req": "15 Direct, 30 Indirect" },
+      { "level": 4, "min": 5000, "roi": 3.1, "annual": 1131.5, "req": "30 Direct, 60 Indirect" },
+      { "level": 5, "min": 10000, "roi": 3.7, "annual": 1350.5, "req": "50 Direct, 100 Indirect" },
+      { "level": 6, "min": 30000, "roi": 4.1, "annual": 1496.5, "req": "100 Direct, 200 Indirect" }
+    ],
+    "staking_tiers": [
+      { "tier": 1, "range": "$200-499", "yield": "1%", "supply": "100,000" },
+      { "tier": 2, "range": "$500-799", "yield": "1.3%", "supply": "50,000" },
+      { "tier": 3, "range": "$800-1,200", "yield": "1.5%", "supply": "50,000" }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "1. INSTALL FONTS: Add the Google Fonts import to index.css immediately.",
+    "2. SETUP THEME: Ensure tailwind.config.js has the custom colors (primary, background, etc.) defined.",
+    "3. CREATE LAYOUTS: Build a 'DashboardLayout' (Sidebar + Topbar) and a 'MarketingLayout' (Navbar + Footer).",
+    "4. USE SHADCN: Use Shadcn components for all interactive elements (Dialogs, Dropdowns, Forms) but style them with the 'glass' utility classes.",
+    "5. ANIMATE: Use framer-motion for page transitions and card hover effects.",
+    "6. DATA-TESTID: Add data-testid to all buttons, inputs, and links.",
+    "7. MOCK DATA: Use the 'content_rules' to populate the UI with accurate data (tiers, ROI, etc.).",
+    "8. LOGO: Since the logo file is missing, create a typographic logo using 'Unbounded' font with a gradient span for the 'X'."
+  ],
+  "universal_guidelines": [
+    "Do not use 'Inter' for headings.",
+    "Do not use solid flat colors for backgrounds; use gradients or noise.",
+    "Ensure all text has sufficient contrast (WCAG AA).",
+    "Use 'sonner' for notifications.",
+    "Mobile responsiveness is critical - check grids on small screens."
+  ]
+}
