@@ -37,6 +37,40 @@ const DepositPage = () => {
     }
   };
 
+  const calculateCharges = () => {
+    const amount = parseFloat(formData.amount) || 0;
+    if (amount <= 0) return null;
+    
+    const chargeType = settings?.deposit_charge_type || 'percentage';
+    const chargeValue = settings?.deposit_charge_value || 0;
+    
+    let charge = 0;
+    if (chargeType === 'percentage') {
+      charge = amount * (chargeValue / 100);
+    } else {
+      charge = chargeValue;
+    }
+    
+    const netAmount = amount - charge;
+    
+    return {
+      grossAmount: amount,
+      chargeType,
+      chargeValue,
+      charge,
+      netAmount
+    };
+  };
+
+  const handlePreSubmit = (e) => {
+    e.preventDefault();
+    const charges = calculateCharges();
+    if (charges) {
+      setChargeDetails(charges);
+      setShowConfirmation(true);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -57,6 +91,8 @@ const DepositPage = () => {
 
       toast.success('Deposit request submitted successfully!');
       setShowForm(false);
+      setShowConfirmation(false);
+      setChargeDetails(null);
       setFormData({ amount: '', payment_method: 'usdt', transaction_hash: '', screenshot: null });
       loadData();
     } catch (error) {
