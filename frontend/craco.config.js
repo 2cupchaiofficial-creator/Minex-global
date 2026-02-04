@@ -84,6 +84,8 @@ webpackConfig.devServer = (devServerConfig) => {
       target: 'http://localhost:8001',
       changeOrigin: true,
       secure: false,
+      timeout: 30000,
+      proxyTimeout: 30000,
     },
   };
 
