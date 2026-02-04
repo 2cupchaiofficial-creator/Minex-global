@@ -36,6 +36,7 @@ db = client[os.environ['DB_NAME']]
 # Set database reference for email service and ROI scheduler
 email_service.set_db(db)
 roi_scheduler.set_dependencies(db, email_service)
+logger.info(f"Email service configured: {email_service.is_configured}, Sender: {email_service.sender_email}")
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
