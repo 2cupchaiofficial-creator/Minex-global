@@ -1067,6 +1067,10 @@ async def get_settings():
             "community_star_target": 28.0,
             "community_star_bonus_min": 100.0,
             "community_star_bonus_max": 1000.0,
+            "deposit_charge_type": "percentage",
+            "deposit_charge_value": 0.0,
+            "withdrawal_charge_type": "percentage",
+            "withdrawal_charge_value": 0.0,
             "updated_at": datetime.now(timezone.utc).isoformat()
         }
         await db.admin_settings.insert_one(default_settings)
@@ -1539,6 +1543,10 @@ async def startup_event():
             "community_star_target": 28.0,
             "community_star_bonus_min": 100.0,
             "community_star_bonus_max": 1000.0,
+            "deposit_charge_type": "percentage",
+            "deposit_charge_value": 0.0,
+            "withdrawal_charge_type": "percentage",
+            "withdrawal_charge_value": 0.0,
             "roi_distribution_hour": 0,
             "roi_distribution_minute": 0,
             "updated_at": datetime.now(timezone.utc).isoformat()
