@@ -62,6 +62,52 @@ const WithdrawPage = () => {
   // Calculate withdrawable balance (ROI + Commission)
   const withdrawableBalance = (user?.roi_balance || 0) + (user?.commission_balance || 0);
 
+  const calculateCharges = () => {
+    const amount = parseFloat(formData.amount) || 0;
+    if (amount <= 0) return null;
+    
+    const chargeType = settings?.withdrawal_charge_type || 'percentage';
+    const chargeValue = settings?.withdrawal_charge_value || 0;
+    
+    let charge = 0;
+    if (chargeType === 'percentage') {
+      charge = amount * (chargeValue / 100);
+    } else {
+      charge = chargeValue;
+    }
+    
+    const netAmount = amount - charge;
+    
+    return {
+      grossAmount: amount,
+      chargeType,
+      chargeValue,
+      charge,
+      netAmount
+    };
+  };
+
+  const handlePreSubmit = (e) => {
+    e.preventDefault();
+    
+    if (!isWithdrawalAllowed()) {
+      toast.error(`Withdrawals are only allowed on days: ${settings?.withdrawal_dates?.join(', ')}`);
+      return;
+    }
+
+    const amount = parseFloat(formData.amount);
+    if (amount > withdrawableBalance) {
+      toast.error('Amount exceeds withdrawable balance');
+      return;
+    }
+
+    const charges = calculateCharges();
+    if (charges) {
+      setChargeDetails(charges);
+      setShowConfirmation(true);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -86,6 +132,8 @@ const WithdrawPage = () => {
 
       toast.success('Withdrawal request submitted!');
       setShowForm(false);
+      setShowConfirmation(false);
+      setChargeDetails(null);
       setFormData({ amount: '', wallet_address: '' });
       loadData();
     } catch (error) {
