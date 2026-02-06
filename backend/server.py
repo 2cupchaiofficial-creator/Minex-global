@@ -1614,6 +1614,14 @@ async def startup_event():
     # Start the automatic ROI scheduler
     roi_scheduler.start()
     logger.info("Automatic ROI scheduler started")
+    
+    # Process any expired stakes that were missed (retroactive processing)
+    try:
+        expired_result = await roi_scheduler.process_expired_stakes()
+        if expired_result.get("stakes_processed", 0) > 0:
+            logger.info(f"Processed {expired_result['stakes_processed']} expired stakes on startup, returned ${expired_result['total_capital_returned']}")
+    except Exception as e:
+        logger.error(f"Error processing expired stakes on startup: {e}")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
