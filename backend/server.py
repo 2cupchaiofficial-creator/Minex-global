@@ -844,11 +844,12 @@ async def upload_screenshot(deposit_id: str, file: UploadFile = File(...), curre
 
 @api_router.post("/withdrawals")
 async def create_withdrawal(withdrawal_data: WithdrawalCreate, current_user: User = Depends(get_current_user)):
-    # Check withdrawable balance (ROI + Commission)
-    withdrawable_balance = current_user.roi_balance + current_user.commission_balance
+    # Check withdrawable balance (wallet_balance includes ROI, Commission, and returned capital)
+    # wallet_balance = total cash available for withdrawal
+    withdrawable_balance = current_user.wallet_balance
     
     if withdrawal_data.amount > withdrawable_balance:
-        raise HTTPException(status_code=400, detail="Insufficient withdrawable balance")
+        raise HTTPException(status_code=400, detail=f"Insufficient withdrawable balance. Available: ${withdrawable_balance:.2f}")
     
     # Check if withdrawal is allowed today (based on admin settings)
     settings = await db.admin_settings.find_one({"settings_id": "default"}, {"_id": 0})
@@ -894,7 +895,8 @@ async def create_withdrawal(withdrawal_data: WithdrawalCreate, current_user: Use
     withdrawal_doc.pop("_id", None)
     withdrawal_doc["status"] = withdrawal_doc["status"].value
     
-    # Deduct FULL amount from balances (charge is taken from this)
+    # Deduct from wallet_balance and track from which sub-balances
+    # Priority: commission_balance first, then roi_balance, then remaining from wallet
     remaining = withdrawal_data.amount
     commission_deduct = min(remaining, current_user.commission_balance)
     remaining -= commission_deduct
