@@ -336,7 +336,7 @@ const StakingPage = () => {
       <div className="glass rounded-xl p-5 md:p-6" data-testid="user-stakes">
         <h2 className="text-lg md:text-xl font-bold text-white mb-5">My Investments</h2>
         
-        {userStakes.length === 0 ? (
+        {!userStakes || userStakes.length === 0 ? (
           <div className="text-center py-12">
             <Wallet className="w-12 h-12 text-gray-600 mx-auto mb-3" />
             <p className="text-gray-500">No active investments</p>
@@ -344,13 +344,13 @@ const StakingPage = () => {
           </div>
         ) : (
           <div className="grid md:grid-cols-2 gap-4">
-            {userStakes.map((stake) => (
-              <div key={stake.staking_entry_id} className="bg-white/5 rounded-xl p-4" data-testid={`stake-${stake.staking_entry_id}`}>
+            {userStakes.map((stake, idx) => (
+              <div key={stake.staking_entry_id || stake.staking_id || idx} className="bg-white/5 rounded-xl p-4" data-testid={`stake-${stake.staking_entry_id || stake.staking_id || idx}`}>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Lock className="w-4 h-4 text-yellow-400" />
                     <span className="text-white font-bold text-sm">
-                      #{stake.staking_entry_id.substring(0, 8)}
+                      #{(stake.staking_entry_id || stake.staking_id || '').substring(0, 8)}
                     </span>
                   </div>
                   <span className={`px-2 py-1 rounded text-xs font-bold ${
@@ -358,32 +358,32 @@ const StakingPage = () => {
                       ? 'bg-green-500/10 text-green-400' 
                       : 'bg-gray-500/10 text-gray-400'
                   }`}>
-                    {stake.status.toUpperCase()}
+                    {(stake.status || 'unknown').toUpperCase()}
                   </span>
                 </div>
 
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-400">Amount</span>
-                    <span className="text-white font-bold font-mono">{formatCurrency(stake.amount)}</span>
+                    <span className="text-white font-bold font-mono">{formatCurrency(stake.amount || 0)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Daily ROI</span>
-                    <span className="text-green-400 font-bold">{stake.daily_roi}%</span>
+                    <span className="text-green-400 font-bold">{stake.daily_roi || 0}%</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Total Earned</span>
-                    <span className="text-white font-bold font-mono">{formatCurrency(stake.total_earned)}</span>
+                    <span className="text-white font-bold font-mono">{formatCurrency(stake.total_earned || 0)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">End Date</span>
-                    <span className="text-white">{formatDateTime(stake.end_date)}</span>
+                    <span className="text-white">{stake.end_date ? formatDateTime(stake.end_date) : 'N/A'}</span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/10">
                   <Clock className="w-4 h-4 text-blue-400" />
-                  <span className="text-blue-400 text-sm font-bold">{getRemainingTime(stake.end_date)}</span>
+                  <span className="text-blue-400 text-sm font-bold">{stake.end_date ? getRemainingTime(stake.end_date) : 'N/A'}</span>
                 </div>
               </div>
             ))}
