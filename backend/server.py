@@ -1607,7 +1607,11 @@ async def startup_event():
         default_settings = {
             "settings_id": "default",
             "usdt_wallet_address": "",
+            "usdt_trc20_address": "",
+            "usdt_bep20_address": "",
             "qr_code_image": None,
+            "qr_code_trc20": None,
+            "qr_code_bep20": None,
             "withdrawal_dates": [1, 15],
             "community_star_target": 28.0,
             "community_star_bonus_min": 100.0,
