@@ -302,8 +302,6 @@ const AdminSettings = () => {
             <p className="text-xs text-gray-500">Users will select their preferred network when making deposits</p>
           </div>
         </div>
-          </div>
-        </div>
 
         {/* Deposit & Withdrawal Charges */}
         <div className="glass rounded-xl p-5 md:p-6">
