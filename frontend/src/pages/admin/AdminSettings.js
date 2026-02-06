@@ -107,12 +107,21 @@ const AdminSettings = () => {
 
     setUploading(true);
     try {
-      const response = await adminAPI.uploadQRCode(file);
-      setSettings({ ...settings, qr_code_image: response.data.qr_code_image });
-      toast.success('QR code uploaded successfully!');
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result;
+        if (activeQrUpload === 'trc20') {
+          setSettings({ ...settings, qr_code_trc20: base64 });
+        } else if (activeQrUpload === 'bep20') {
+          setSettings({ ...settings, qr_code_bep20: base64 });
+        }
+        toast.success('QR code uploaded successfully!');
+        setUploading(false);
+        setActiveQrUpload(null);
+      };
+      reader.readAsDataURL(file);
     } catch (error) {
       toast.error('Failed to upload QR code');
-    } finally {
       setUploading(false);
     }
   };
