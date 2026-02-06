@@ -154,10 +154,11 @@ const StakingPage = () => {
       {/* Investment Packages */}
       <div>
         <h2 className="text-lg md:text-xl font-bold text-white mb-4">Investment Packages</h2>
+        {packages && packages.length > 0 ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
           {packages.map((pkg, idx) => (
             <motion.div
-              key={pkg.package_id}
+              key={pkg.package_id || pkg._id || idx}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
