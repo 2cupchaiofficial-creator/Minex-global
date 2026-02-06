@@ -562,6 +562,7 @@ class ROIScheduler:
             "users_notified": users_notified,
             "stakes_completed": completed_stakes,
             "capital_returned_total": capital_returned_total,
+            "skipped_already_paid_today": skipped_already_paid,
             "status": "success"
         }
         await self.db.system_logs.insert_one(distribution_log)
@@ -576,6 +577,7 @@ class ROIScheduler:
             "users_notified": users_notified,
             "stakes_completed": completed_stakes,
             "capital_returned_total": capital_returned_total,
+            "skipped_already_paid_today": skipped_already_paid,
             "run_time": self.last_run.isoformat(),
             "next_run": self.next_run.isoformat() if self.next_run else None
         }
