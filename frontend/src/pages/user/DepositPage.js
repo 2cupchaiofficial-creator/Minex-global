@@ -12,13 +12,14 @@ const DepositPage = () => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     amount: '',
-    payment_method: 'usdt',
+    payment_method: 'usdt_trc20',
     transaction_hash: '',
     screenshot: null
   });
   const [showForm, setShowForm] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [chargeDetails, setChargeDetails] = useState(null);
+  const [selectedNetwork, setSelectedNetwork] = useState('trc20');
 
   useEffect(() => {
     loadData();
