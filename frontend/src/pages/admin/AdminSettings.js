@@ -6,7 +6,11 @@ import { Save, Settings as SettingsIcon, Upload, Image, X, Calendar, Calculator,
 const AdminSettings = () => {
   const [settings, setSettings] = useState({
     usdt_wallet_address: '',
+    usdt_trc20_address: '',
+    usdt_bep20_address: '',
     qr_code_image: null,
+    qr_code_trc20: null,
+    qr_code_bep20: null,
     withdrawal_dates: [1, 15],
     community_star_target: 28.0,
     community_star_bonus_min: 100.0,
@@ -23,6 +27,7 @@ const AdminSettings = () => {
   const [roiLoading, setRoiLoading] = useState(false);
   const [schedulerStatus, setSchedulerStatus] = useState(null);
   const [emailLogs, setEmailLogs] = useState([]);
+  const [activeQrUpload, setActiveQrUpload] = useState(null); // 'trc20' or 'bep20'
   const fileInputRef = useRef(null);
 
   useEffect(() => {
