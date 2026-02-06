@@ -170,74 +170,138 @@ const AdminSettings = () => {
         <div className="glass rounded-xl p-5 md:p-6">
           <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
             <SettingsIcon className="w-5 h-5" />
-            Payment Settings
+            Payment Settings - USDT Networks
           </h2>
           
-          <div className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">USDT Wallet Address *</label>
-              <input
-                type="text"
-                value={settings.usdt_wallet_address}
-                onChange={(e) => setSettings({ ...settings, usdt_wallet_address: e.target.value })}
-                className="w-full bg-gray-900/50 border border-gray-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg px-4 py-3 text-white font-mono text-sm"
-                placeholder="Enter USDT wallet address (TRC20)"
-                required
-                data-testid="usdt-wallet-input"
-              />
-              <p className="text-xs text-gray-500 mt-2">Users will send deposits to this address</p>
-            </div>
-
-            {/* QR Code Upload */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Payment QR Code</label>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div 
-                  onClick={() => fileInputRef.current?.click()}
-                  className="flex-shrink-0 w-32 h-32 bg-gray-900/50 border border-dashed border-gray-700 rounded-xl flex items-center justify-center cursor-pointer hover:border-blue-500/50 transition-colors overflow-hidden"
-                >
-                  {settings.qr_code_image ? (
-                    <img src={settings.qr_code_image} alt="QR Code" className="w-full h-full object-contain" />
-                  ) : (
-                    <div className="text-center">
-                      <Image className="w-8 h-8 text-gray-600 mx-auto mb-2" />
-                      <span className="text-xs text-gray-500">Upload QR</span>
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1">
+          <div className="space-y-6">
+            {/* TRC20 Network */}
+            <div className="bg-blue-500/5 border border-blue-500/20 rounded-lg p-4">
+              <h3 className="text-md font-semibold text-blue-400 mb-4 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-blue-400"></span>
+                TRC-20 Network (Tron)
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">USDT TRC-20 Wallet Address *</label>
                   <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleQRUpload}
-                    className="hidden"
+                    type="text"
+                    value={settings.usdt_trc20_address}
+                    onChange={(e) => setSettings({ ...settings, usdt_trc20_address: e.target.value })}
+                    className="w-full bg-gray-900/50 border border-gray-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg px-4 py-3 text-white font-mono text-sm"
+                    placeholder="Enter TRC-20 wallet address (starts with T)"
+                    data-testid="usdt-trc20-input"
                   />
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading}
-                    className="btn-secondary flex items-center gap-2 mb-2"
-                  >
-                    <Upload className="w-4 h-4" />
-                    {uploading ? 'Uploading...' : 'Upload QR Code'}
-                  </button>
-                  <p className="text-xs text-gray-500">
-                    Upload a QR code image for your USDT wallet.
-                  </p>
-                  {settings.qr_code_image && (
-                    <button
-                      type="button"
-                      onClick={() => setSettings({ ...settings, qr_code_image: null })}
-                      className="text-red-400 text-xs mt-2 hover:text-red-300 flex items-center gap-1"
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">TRC-20 QR Code</label>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div 
+                      onClick={() => { setActiveQrUpload('trc20'); fileInputRef.current?.click(); }}
+                      className="flex-shrink-0 w-28 h-28 bg-gray-900/50 border border-dashed border-gray-700 rounded-xl flex items-center justify-center cursor-pointer hover:border-blue-500/50 transition-colors overflow-hidden"
                     >
-                      <X className="w-3 h-3" />
-                      Remove QR Code
-                    </button>
-                  )}
+                      {settings.qr_code_trc20 ? (
+                        <img src={settings.qr_code_trc20} alt="TRC-20 QR" className="w-full h-full object-contain" />
+                      ) : (
+                        <div className="text-center">
+                          <Image className="w-6 h-6 text-gray-600 mx-auto mb-1" />
+                          <span className="text-xs text-gray-500">Upload</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <button
+                        type="button"
+                        onClick={() => { setActiveQrUpload('trc20'); fileInputRef.current?.click(); }}
+                        disabled={uploading}
+                        className="btn-secondary flex items-center gap-2 mb-2 text-sm"
+                      >
+                        <Upload className="w-4 h-4" />
+                        {uploading && activeQrUpload === 'trc20' ? 'Uploading...' : 'Upload TRC-20 QR'}
+                      </button>
+                      {settings.qr_code_trc20 && (
+                        <button
+                          type="button"
+                          onClick={() => setSettings({ ...settings, qr_code_trc20: null })}
+                          className="text-red-400 text-xs hover:text-red-300 flex items-center gap-1"
+                        >
+                          <X className="w-3 h-3" /> Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+
+            {/* BEP20 Network */}
+            <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-lg p-4">
+              <h3 className="text-md font-semibold text-yellow-400 mb-4 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-yellow-400"></span>
+                BEP-20 Network (BSC)
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">USDT BEP-20 Wallet Address *</label>
+                  <input
+                    type="text"
+                    value={settings.usdt_bep20_address}
+                    onChange={(e) => setSettings({ ...settings, usdt_bep20_address: e.target.value })}
+                    className="w-full bg-gray-900/50 border border-gray-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg px-4 py-3 text-white font-mono text-sm"
+                    placeholder="Enter BEP-20 wallet address (starts with 0x)"
+                    data-testid="usdt-bep20-input"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">BEP-20 QR Code</label>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div 
+                      onClick={() => { setActiveQrUpload('bep20'); fileInputRef.current?.click(); }}
+                      className="flex-shrink-0 w-28 h-28 bg-gray-900/50 border border-dashed border-gray-700 rounded-xl flex items-center justify-center cursor-pointer hover:border-yellow-500/50 transition-colors overflow-hidden"
+                    >
+                      {settings.qr_code_bep20 ? (
+                        <img src={settings.qr_code_bep20} alt="BEP-20 QR" className="w-full h-full object-contain" />
+                      ) : (
+                        <div className="text-center">
+                          <Image className="w-6 h-6 text-gray-600 mx-auto mb-1" />
+                          <span className="text-xs text-gray-500">Upload</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <button
+                        type="button"
+                        onClick={() => { setActiveQrUpload('bep20'); fileInputRef.current?.click(); }}
+                        disabled={uploading}
+                        className="btn-secondary flex items-center gap-2 mb-2 text-sm"
+                      >
+                        <Upload className="w-4 h-4" />
+                        {uploading && activeQrUpload === 'bep20' ? 'Uploading...' : 'Upload BEP-20 QR'}
+                      </button>
+                      {settings.qr_code_bep20 && (
+                        <button
+                          type="button"
+                          onClick={() => setSettings({ ...settings, qr_code_bep20: null })}
+                          className="text-red-400 text-xs hover:text-red-300 flex items-center gap-1"
+                        >
+                          <X className="w-3 h-3" /> Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleQRUpload}
+              className="hidden"
+            />
+            <p className="text-xs text-gray-500">Users will select their preferred network when making deposits</p>
+          </div>
+        </div>
           </div>
         </div>
 
