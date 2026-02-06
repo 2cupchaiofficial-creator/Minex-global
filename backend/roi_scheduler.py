@@ -151,15 +151,13 @@ class ROIScheduler:
         
         logger.info("Processing expired stakes for capital return...")
         
-        # Find all stakes that are expired but capital not returned
-        # Include both "active" status and any status where capital_returned is False
-        all_stakes = await self.db.staking.find({
-            "capital_returned": {"$ne": True}
-        }).to_list(10000)
+        # Find ALL stakes (we'll check each one individually for proper processing)
+        all_stakes = await self.db.staking.find({}).to_list(10000)
         
         processed = 0
         total_capital_returned = 0.0
         errors = []
+        already_processed = 0
         
         now = datetime.now(timezone.utc)
         
@@ -169,25 +167,36 @@ class ROIScheduler:
                 user_id = stake.get("user_id")
                 amount = stake.get("amount", 0)
                 end_date_str = stake.get("end_date", "")
+                status = stake.get("status", "")
+                capital_returned = stake.get("capital_returned", False)
                 
-                if not end_date_str or not user_id or amount <= 0:
+                if not user_id or amount <= 0:
                     continue
                 
                 # Parse end date
-                try:
-                    if isinstance(end_date_str, str):
-                        end_date = datetime.fromisoformat(end_date_str.replace("Z", "+00:00"))
-                    else:
-                        end_date = end_date_str
-                except Exception as e:
-                    logger.warning(f"Error parsing end date for stake {stake_id}: {e}")
-                    continue
+                end_date = None
+                if end_date_str:
+                    try:
+                        if isinstance(end_date_str, str):
+                            end_date = datetime.fromisoformat(end_date_str.replace("Z", "+00:00"))
+                        else:
+                            end_date = end_date_str
+                    except Exception as e:
+                        logger.warning(f"Error parsing end date for stake {stake_id}: {e}")
                 
-                # Check if expired
-                if now >= end_date:
+                # Check if expired (either by end_date or status is already completed)
+                is_expired = (end_date and now >= end_date) or status == "completed"
+                
+                if is_expired and not capital_returned:
                     logger.info(f"Processing expired stake {stake_id} for user {user_id}, amount ${amount}")
                     
-                    # Mark stake as completed
+                    # Get current user to verify
+                    user = await self.db.users.find_one({"user_id": user_id}, {"_id": 0})
+                    if not user:
+                        logger.warning(f"User {user_id} not found for stake {stake_id}")
+                        continue
+                    
+                    # Mark stake as completed with capital returned
                     await self.db.staking.update_one(
                         {"staking_id": stake_id},
                         {"$set": {
@@ -220,21 +229,22 @@ class ROIScheduler:
                     
                     # Send notification email
                     if self.email_service:
-                        user = await self.db.users.find_one({"user_id": user_id}, {"_id": 0})
-                        if user:
-                            try:
-                                await self.email_service.send_staking_completed_notification(
-                                    user["email"],
-                                    user["full_name"],
-                                    amount,
-                                    stake.get("total_earned", 0)
-                                )
-                            except Exception as e:
-                                logger.warning(f"Failed to send staking completion email: {e}")
+                        try:
+                            await self.email_service.send_staking_completed_notification(
+                                user["email"],
+                                user["full_name"],
+                                amount,
+                                stake.get("total_earned", 0)
+                            )
+                        except Exception as e:
+                            logger.warning(f"Failed to send staking completion email: {e}")
                     
                     processed += 1
                     total_capital_returned += amount
-                    logger.info(f"Successfully processed stake {stake_id}")
+                    logger.info(f"Successfully processed stake {stake_id} - ${amount} returned to user {user.get('email', user_id)}")
+                
+                elif capital_returned:
+                    already_processed += 1
                     
             except Exception as e:
                 error_msg = f"Error processing stake {stake.get('staking_id', 'unknown')}: {str(e)}"
@@ -244,11 +254,96 @@ class ROIScheduler:
         result = {
             "message": "Expired stakes processed",
             "stakes_processed": processed,
+            "already_processed": already_processed,
             "total_capital_returned": total_capital_returned,
             "errors": errors
         }
         
         logger.info(f"Expired stakes processing complete: {result}")
+        return result
+    
+    async def fix_missing_capital_returns(self) -> dict:
+        """
+        CRITICAL FIX: Find all stakes marked as completed/capital_returned=True
+        but where the user's wallet_balance doesn't reflect the returned capital.
+        This fixes accounts where the flag was set but money wasn't actually transferred.
+        """
+        if self.db is None:
+            return {"error": "Database not configured"}
+        
+        logger.info("FIXING missing capital returns...")
+        
+        # Find all completed stakes with capital_returned = True
+        completed_stakes = await self.db.staking.find({
+            "capital_returned": True
+        }).to_list(10000)
+        
+        fixed = 0
+        total_fixed_amount = 0.0
+        details = []
+        
+        for stake in completed_stakes:
+            try:
+                stake_id = stake.get("staking_id") or stake.get("staking_entry_id")
+                user_id = stake.get("user_id")
+                amount = stake.get("amount", 0)
+                
+                if not user_id or amount <= 0:
+                    continue
+                
+                # Check if there's a capital_return transaction for this stake
+                existing_txn = await self.db.transactions.find_one({
+                    "staking_id": stake_id,
+                    "type": "capital_return"
+                })
+                
+                if not existing_txn:
+                    # Capital return transaction doesn't exist - money was never transferred!
+                    user = await self.db.users.find_one({"user_id": user_id}, {"_id": 0})
+                    if not user:
+                        continue
+                    
+                    logger.info(f"FIXING stake {stake_id} for user {user.get('email')} - adding ${amount} to wallet")
+                    
+                    # Add the capital to wallet_balance
+                    await self.db.users.update_one(
+                        {"user_id": user_id},
+                        {"$inc": {"wallet_balance": amount}}
+                    )
+                    
+                    # Create the missing transaction record
+                    capital_return_doc = {
+                        "transaction_id": str(uuid.uuid4()),
+                        "user_id": user_id,
+                        "staking_id": stake_id,
+                        "type": "capital_return",
+                        "amount": amount,
+                        "description": "Staking package completed - Capital returned to cash wallet (FIXED)",
+                        "created_at": datetime.now(timezone.utc).isoformat()
+                    }
+                    await self.db.transactions.insert_one(capital_return_doc)
+                    
+                    fixed += 1
+                    total_fixed_amount += amount
+                    details.append({
+                        "user_email": user.get("email"),
+                        "stake_id": stake_id,
+                        "amount_fixed": amount
+                    })
+                    
+                    logger.info(f"FIXED: ${amount} added to {user.get('email')}'s wallet")
+                    
+            except Exception as e:
+                logger.error(f"Error fixing stake {stake.get('staking_id', 'unknown')}: {e}")
+        
+        result = {
+            "message": "Missing capital returns fixed",
+            "stakes_fixed": fixed,
+            "total_amount_fixed": total_fixed_amount,
+            "details": details
+        }
+        
+        logger.info(f"Fix complete: {result}")
         return result
 
     async def distribute_daily_roi(self) -> dict:
