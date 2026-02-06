@@ -140,6 +140,117 @@ class ROIScheduler:
             # Move to next level
             current_ref = upline.get("referred_by")
     
+    async def process_expired_stakes(self) -> dict:
+        """
+        Process all expired stakes that haven't had capital returned yet.
+        This handles any stakes that were missed or need to be retroactively processed.
+        """
+        if self.db is None:
+            logger.error("Database not configured for ROI scheduler")
+            return {"error": "Database not configured"}
+        
+        logger.info("Processing expired stakes for capital return...")
+        
+        # Find all stakes that are expired but capital not returned
+        # Include both "active" status and any status where capital_returned is False
+        all_stakes = await self.db.staking.find({
+            "capital_returned": {"$ne": True}
+        }).to_list(10000)
+        
+        processed = 0
+        total_capital_returned = 0.0
+        errors = []
+        
+        now = datetime.now(timezone.utc)
+        
+        for stake in all_stakes:
+            try:
+                stake_id = stake.get("staking_id") or stake.get("staking_entry_id")
+                user_id = stake.get("user_id")
+                amount = stake.get("amount", 0)
+                end_date_str = stake.get("end_date", "")
+                
+                if not end_date_str or not user_id or amount <= 0:
+                    continue
+                
+                # Parse end date
+                try:
+                    if isinstance(end_date_str, str):
+                        end_date = datetime.fromisoformat(end_date_str.replace("Z", "+00:00"))
+                    else:
+                        end_date = end_date_str
+                except Exception as e:
+                    logger.warning(f"Error parsing end date for stake {stake_id}: {e}")
+                    continue
+                
+                # Check if expired
+                if now >= end_date:
+                    logger.info(f"Processing expired stake {stake_id} for user {user_id}, amount ${amount}")
+                    
+                    # Mark stake as completed
+                    await self.db.staking.update_one(
+                        {"staking_id": stake_id},
+                        {"$set": {
+                            "status": "completed",
+                            "capital_returned": True,
+                            "completed_at": now.isoformat()
+                        }}
+                    )
+                    
+                    # Transfer capital to cash wallet and reduce staked_amount
+                    await self.db.users.update_one(
+                        {"user_id": user_id},
+                        {"$inc": {
+                            "wallet_balance": amount,
+                            "staked_amount": -amount
+                        }}
+                    )
+                    
+                    # Create transaction record
+                    capital_return_doc = {
+                        "transaction_id": str(uuid.uuid4()),
+                        "user_id": user_id,
+                        "staking_id": stake_id,
+                        "type": "capital_return",
+                        "amount": amount,
+                        "description": "Staking package completed - Capital returned to cash wallet",
+                        "created_at": now.isoformat()
+                    }
+                    await self.db.transactions.insert_one(capital_return_doc)
+                    
+                    # Send notification email
+                    if self.email_service:
+                        user = await self.db.users.find_one({"user_id": user_id}, {"_id": 0})
+                        if user:
+                            try:
+                                await self.email_service.send_staking_completed_notification(
+                                    user["email"],
+                                    user["full_name"],
+                                    amount,
+                                    stake.get("total_earned", 0)
+                                )
+                            except Exception as e:
+                                logger.warning(f"Failed to send staking completion email: {e}")
+                    
+                    processed += 1
+                    total_capital_returned += amount
+                    logger.info(f"Successfully processed stake {stake_id}")
+                    
+            except Exception as e:
+                error_msg = f"Error processing stake {stake.get('staking_id', 'unknown')}: {str(e)}"
+                logger.error(error_msg)
+                errors.append(error_msg)
+        
+        result = {
+            "message": "Expired stakes processed",
+            "stakes_processed": processed,
+            "total_capital_returned": total_capital_returned,
+            "errors": errors
+        }
+        
+        logger.info(f"Expired stakes processing complete: {result}")
+        return result
+
     async def distribute_daily_roi(self) -> dict:
         """
         Distribute daily ROI to all active stakers
