@@ -231,6 +231,13 @@ const StakingPage = () => {
             </motion.div>
           ))}
         </div>
+        ) : (
+          <div className="glass rounded-xl p-8 text-center">
+            <Zap className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+            <p className="text-gray-400">No investment packages available</p>
+            <p className="text-gray-500 text-sm mt-2">Please check back later or contact support</p>
+          </div>
+        )}
       </div>
 
       {/* Investment Form */}
