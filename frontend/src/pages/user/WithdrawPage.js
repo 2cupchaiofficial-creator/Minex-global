@@ -59,8 +59,8 @@ const WithdrawPage = () => {
     return sortedDates[0];
   };
 
-  // Calculate withdrawable balance (ROI + Commission)
-  const withdrawableBalance = (user?.roi_balance || 0) + (user?.commission_balance || 0);
+  // Calculate withdrawable balance (wallet_balance = ROI + Commission + returned capital)
+  const withdrawableBalance = user?.wallet_balance || 0;
 
   const calculateCharges = () => {
     const amount = parseFloat(formData.amount) || 0;
