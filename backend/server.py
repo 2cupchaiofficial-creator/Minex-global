@@ -1450,6 +1450,17 @@ async def process_expired_stakes(admin: User = Depends(get_admin_user)):
     result = await roi_scheduler.process_expired_stakes()
     return result
 
+# FIX missing capital returns (CRITICAL)
+@api_router.post("/admin/roi-scheduler/fix-missing-capital")
+async def fix_missing_capital_returns(admin: User = Depends(get_admin_user)):
+    """
+    CRITICAL FIX: Find and fix all stakes where capital_returned=True 
+    but the money was never actually added to the user's wallet.
+    This will add the missing capital to affected users' wallets.
+    """
+    result = await roi_scheduler.fix_missing_capital_returns()
+    return result
+
 # Trigger manual ROI distribution
 @api_router.post("/admin/roi-scheduler/distribute-now")
 async def distribute_roi_now(admin: User = Depends(get_admin_user)):
