@@ -157,30 +157,96 @@ const DepositPage = () => {
         >
           <h2 className="text-xl md:text-2xl font-semibold text-white mb-6">Submit Deposit</h2>
 
+          {/* Network Selection */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-300 mb-3">Select USDT Network *</label>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedNetwork('trc20');
+                  setFormData({ ...formData, payment_method: 'usdt_trc20' });
+                }}
+                className={`p-4 rounded-xl border-2 transition-all ${
+                  selectedNetwork === 'trc20'
+                    ? 'border-blue-500 bg-blue-500/10'
+                    : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'
+                }`}
+                data-testid="select-trc20"
+              >
+                <div className={`text-lg font-bold ${selectedNetwork === 'trc20' ? 'text-blue-400' : 'text-white'}`}>
+                  TRC-20
+                </div>
+                <div className="text-xs text-gray-400 mt-1">Tron Network</div>
+                <div className="text-xs text-green-400 mt-2">Low Fees</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedNetwork('bep20');
+                  setFormData({ ...formData, payment_method: 'usdt_bep20' });
+                }}
+                className={`p-4 rounded-xl border-2 transition-all ${
+                  selectedNetwork === 'bep20'
+                    ? 'border-yellow-500 bg-yellow-500/10'
+                    : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'
+                }`}
+                data-testid="select-bep20"
+              >
+                <div className={`text-lg font-bold ${selectedNetwork === 'bep20' ? 'text-yellow-400' : 'text-white'}`}>
+                  BEP-20
+                </div>
+                <div className="text-xs text-gray-400 mt-1">BSC Network</div>
+                <div className="text-xs text-green-400 mt-2">Fast</div>
+              </button>
+            </div>
+          </div>
+
           <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <div className="glass rounded-xl p-6 bg-gradient-to-br from-blue-500/10 to-purple-500/10 hover:from-blue-500/15 hover:to-purple-500/15 transition-all" data-testid="usdt-payment-method">
-              <h3 className="text-lg font-bold text-white mb-4">USDT Payment</h3>
+            <div className={`glass rounded-xl p-6 bg-gradient-to-br ${selectedNetwork === 'trc20' ? 'from-blue-500/10 to-blue-600/10 border border-blue-500/30' : 'from-yellow-500/10 to-yellow-600/10 border border-yellow-500/30'}`} data-testid="usdt-payment-method">
+              <h3 className="text-lg font-bold text-white mb-4">
+                {selectedNetwork === 'trc20' ? 'USDT TRC-20 Payment' : 'USDT BEP-20 Payment'}
+              </h3>
               <div className="space-y-4">
-                {/* Show uploaded QR code if available, otherwise generate one */}
-                {(settings?.qr_code_image || settings?.usdt_wallet_address) && (
+                {/* Show QR code based on selected network */}
+                {((selectedNetwork === 'trc20' && (settings?.qr_code_trc20 || settings?.usdt_trc20_address)) ||
+                  (selectedNetwork === 'bep20' && (settings?.qr_code_bep20 || settings?.usdt_bep20_address))) && (
                   <div className="flex justify-center mb-4">
                     <div className="p-4 bg-white rounded-xl">
-                      {settings?.qr_code_image ? (
-                        <img src={settings.qr_code_image} alt="Payment QR Code" className="w-[180px] h-[180px] object-contain" />
+                      {selectedNetwork === 'trc20' ? (
+                        settings?.qr_code_trc20 ? (
+                          <img src={settings.qr_code_trc20} alt="TRC-20 QR Code" className="w-[160px] h-[160px] object-contain" />
+                        ) : (
+                          <QRCodeSVG value={settings?.usdt_trc20_address || ''} size={160} />
+                        )
                       ) : (
-                        <QRCodeSVG value={settings?.usdt_wallet_address || ''} size={180} />
+                        settings?.qr_code_bep20 ? (
+                          <img src={settings.qr_code_bep20} alt="BEP-20 QR Code" className="w-[160px] h-[160px] object-contain" />
+                        ) : (
+                          <QRCodeSVG value={settings?.usdt_bep20_address || ''} size={160} />
+                        )
                       )}
                     </div>
                   </div>
                 )}
                 <div>
-                  <div className="text-sm text-gray-400 mb-2">Wallet Address</div>
+                  <div className="text-sm text-gray-400 mb-2">
+                    {selectedNetwork === 'trc20' ? 'TRC-20' : 'BEP-20'} Wallet Address
+                  </div>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 bg-gray-900/50 rounded-lg px-4 py-3 text-white font-mono text-xs md:text-sm break-all">
-                      {settings?.usdt_wallet_address || 'Loading...'}
+                    <div className="flex-1 bg-gray-900/50 rounded-lg px-4 py-3 text-white font-mono text-xs break-all">
+                      {selectedNetwork === 'trc20' 
+                        ? (settings?.usdt_trc20_address || settings?.usdt_wallet_address || 'Not configured')
+                        : (settings?.usdt_bep20_address || 'Not configured')
+                      }
                     </div>
                     <button
-                      onClick={() => handleCopy(settings?.usdt_wallet_address)}
+                      type="button"
+                      onClick={() => handleCopy(
+                        selectedNetwork === 'trc20' 
+                          ? (settings?.usdt_trc20_address || settings?.usdt_wallet_address)
+                          : settings?.usdt_bep20_address
+                      )}
                       className="p-3 bg-blue-500/10 hover:bg-blue-500/20 rounded-lg transition flex-shrink-0"
                       data-testid="copy-wallet-btn"
                     >
@@ -188,8 +254,8 @@ const DepositPage = () => {
                     </button>
                   </div>
                 </div>
-                <div className="text-xs text-gray-500 bg-blue-500/5 rounded-lg p-3">
-                  📱 Scan QR code or copy address to send USDT. Then submit transaction details below.
+                <div className={`text-xs ${selectedNetwork === 'trc20' ? 'bg-blue-500/10 text-blue-200' : 'bg-yellow-500/10 text-yellow-200'} rounded-lg p-3`}>
+                  ⚠️ Only send USDT on <strong>{selectedNetwork === 'trc20' ? 'TRC-20 (Tron)' : 'BEP-20 (BSC)'}</strong> network. Sending on wrong network may result in loss of funds.
                 </div>
               </div>
             </div>
