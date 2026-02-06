@@ -1004,12 +1004,13 @@ async def create_staking(staking_data: StakingCreate, current_user: User = Depen
     await db.staking.insert_one(staking_doc)
     staking_doc.pop("_id", None)
     
-    # Deduct from wallet balance
+    # Deduct from wallet balance and update staked_amount
     await db.users.update_one(
         {"user_id": current_user.user_id},
         {"$inc": {
             "wallet_balance": -staking_data.amount,
-            "total_investment": staking_data.amount
+            "total_investment": staking_data.amount,
+            "staked_amount": staking_data.amount
         }}
     )
     
