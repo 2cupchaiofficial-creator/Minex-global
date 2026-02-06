@@ -1441,6 +1441,20 @@ async def get_roi_scheduler_status(admin: User = Depends(get_admin_user)):
     """Get ROI scheduler status"""
     return roi_scheduler.get_status()
 
+# Process expired stakes manually
+@api_router.post("/admin/roi-scheduler/process-expired")
+async def process_expired_stakes(admin: User = Depends(get_admin_user)):
+    """Manually process all expired stakes and return capital to users"""
+    result = await roi_scheduler.process_expired_stakes()
+    return result
+
+# Trigger manual ROI distribution
+@api_router.post("/admin/roi-scheduler/distribute-now")
+async def distribute_roi_now(admin: User = Depends(get_admin_user)):
+    """Manually trigger ROI distribution"""
+    result = await roi_scheduler.distribute_daily_roi()
+    return result
+
 # Set ROI Schedule Time
 @api_router.post("/admin/roi-scheduler/set-time")
 async def set_roi_schedule_time(hour: int = 0, minute: int = 0, admin: User = Depends(get_admin_user)):
