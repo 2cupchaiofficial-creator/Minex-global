@@ -23,7 +23,9 @@ class StakingStatus(str, Enum):
     COMPLETED = "completed"
 
 class PaymentMethod(str, Enum):
-    USDT = "usdt"
+    USDT_TRC20 = "usdt_trc20"
+    USDT_BEP20 = "usdt_bep20"
+    USDT = "usdt"  # Legacy support
     BANK = "bank"
 
 class TransactionType(str, Enum):
