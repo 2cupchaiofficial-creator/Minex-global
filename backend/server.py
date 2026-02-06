@@ -1450,19 +1450,8 @@ async def get_roi_scheduler_status(admin: User = Depends(get_admin_user)):
 # Process expired stakes manually
 @api_router.post("/admin/roi-scheduler/process-expired")
 async def process_expired_stakes(admin: User = Depends(get_admin_user)):
-    """Manually process all expired stakes and return capital to users"""
+    """Manually process all expired stakes and return capital to users (checks for duplicates)"""
     result = await roi_scheduler.process_expired_stakes()
-    return result
-
-# FIX missing capital returns (CRITICAL)
-@api_router.post("/admin/roi-scheduler/fix-missing-capital")
-async def fix_missing_capital_returns(admin: User = Depends(get_admin_user)):
-    """
-    CRITICAL FIX: Find and fix all stakes where capital_returned=True 
-    but the money was never actually added to the user's wallet.
-    This will add the missing capital to affected users' wallets.
-    """
-    result = await roi_scheduler.fix_missing_capital_returns()
     return result
 
 # Trigger manual ROI distribution
