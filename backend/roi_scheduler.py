@@ -151,13 +151,15 @@ class ROIScheduler:
         
         logger.info("Processing expired stakes for capital return...")
         
-        # Find ALL stakes (we'll check each one individually for proper processing)
-        all_stakes = await self.db.staking.find({}).to_list(10000)
+        # Find ALL stakes that are not yet marked as capital_returned
+        all_stakes = await self.db.staking.find({
+            "capital_returned": {"$ne": True}
+        }).to_list(10000)
         
         processed = 0
         total_capital_returned = 0.0
         errors = []
-        already_processed = 0
+        already_has_txn = 0
         
         now = datetime.now(timezone.utc)
         
@@ -168,7 +170,6 @@ class ROIScheduler:
                 amount = stake.get("amount", 0)
                 end_date_str = stake.get("end_date", "")
                 status = stake.get("status", "")
-                capital_returned = stake.get("capital_returned", False)
                 
                 if not user_id or amount <= 0:
                     continue
@@ -187,7 +188,23 @@ class ROIScheduler:
                 # Check if expired (either by end_date or status is already completed)
                 is_expired = (end_date and now >= end_date) or status == "completed"
                 
-                if is_expired and not capital_returned:
+                if is_expired:
+                    # CHECK IF CAPITAL RETURN TRANSACTION ALREADY EXISTS - PREVENT DOUBLE CAPITAL
+                    existing_txn = await self.db.transactions.find_one({
+                        "staking_id": stake_id,
+                        "type": "capital_return"
+                    })
+                    
+                    if existing_txn:
+                        # Transaction exists, just mark stake as completed
+                        logger.info(f"Capital txn exists for stake {stake_id}, marking completed only")
+                        await self.db.staking.update_one(
+                            {"staking_id": stake_id},
+                            {"$set": {"status": "completed", "capital_returned": True}}
+                        )
+                        already_has_txn += 1
+                        continue
+                    
                     logger.info(f"Processing expired stake {stake_id} for user {user_id}, amount ${amount}")
                     
                     # Get current user to verify
@@ -242,9 +259,6 @@ class ROIScheduler:
                     processed += 1
                     total_capital_returned += amount
                     logger.info(f"Successfully processed stake {stake_id} - ${amount} returned to user {user.get('email', user_id)}")
-                
-                elif capital_returned:
-                    already_processed += 1
                     
             except Exception as e:
                 error_msg = f"Error processing stake {stake.get('staking_id', 'unknown')}: {str(e)}"
@@ -254,7 +268,7 @@ class ROIScheduler:
         result = {
             "message": "Expired stakes processed",
             "stakes_processed": processed,
-            "already_processed": already_processed,
+            "already_had_transaction": already_has_txn,
             "total_capital_returned": total_capital_returned,
             "errors": errors
         }
