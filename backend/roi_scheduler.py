@@ -358,6 +358,7 @@ class ROIScheduler:
         
         logger.info("Starting automatic daily ROI distribution...")
         self.last_run = datetime.now(timezone.utc)
+        today_date = datetime.now(timezone.utc).date()
         
         # Get all active stakes
         active_stakes = await self.db.staking.find({"status": "active"}).to_list(10000)
@@ -368,6 +369,7 @@ class ROIScheduler:
         users_notified = 0
         completed_stakes = 0
         capital_returned_total = 0.0
+        skipped_already_paid = 0
         
         for stake in active_stakes:
             try:
@@ -375,6 +377,22 @@ class ROIScheduler:
                 amount = stake["amount"]
                 daily_roi = stake.get("daily_roi", 0)
                 stake_id = stake.get("staking_id") or stake.get("staking_entry_id")
+                
+                # CHECK IF ROI ALREADY DISTRIBUTED TODAY - PREVENT DOUBLE ROI
+                last_yield_str = stake.get("last_yield_date", "")
+                if last_yield_str:
+                    try:
+                        if isinstance(last_yield_str, str):
+                            last_yield = datetime.fromisoformat(last_yield_str.replace("Z", "+00:00"))
+                        else:
+                            last_yield = last_yield_str
+                        
+                        if last_yield.date() == today_date:
+                            skipped_already_paid += 1
+                            logger.debug(f"Skipping stake {stake_id} - ROI already distributed today")
+                            continue
+                    except Exception as e:
+                        logger.warning(f"Error parsing last_yield_date for stake {stake_id}: {e}")
                 
                 # Check if package duration completed
                 end_date_str = stake.get("end_date", "")
@@ -394,6 +412,20 @@ class ROIScheduler:
                 
                 # If package expired, return capital to cash wallet
                 if package_expired and not stake.get("capital_returned", False):
+                    # Check if capital return transaction already exists (PREVENT DOUBLE CAPITAL)
+                    existing_capital_txn = await self.db.transactions.find_one({
+                        "staking_id": stake_id,
+                        "type": "capital_return"
+                    })
+                    
+                    if existing_capital_txn:
+                        logger.warning(f"Capital return txn exists for stake {stake_id}, just marking as completed")
+                        await self.db.staking.update_one(
+                            {"staking_id": stake_id},
+                            {"$set": {"status": "completed", "capital_returned": True}}
+                        )
+                        continue
+                    
                     # Mark stake as completed
                     await self.db.staking.update_one(
                         {"staking_id": stake_id},
