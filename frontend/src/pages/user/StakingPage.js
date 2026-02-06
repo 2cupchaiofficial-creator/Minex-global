@@ -30,13 +30,18 @@ const StakingPage = () => {
         investmentAPI.getUserInvestments(),
         depositAPI.getAll()
       ]);
-      setPackages(packagesRes.data);
-      setUserStakes(stakesRes.data);
+      setPackages(packagesRes?.data || []);
+      setUserStakes(stakesRes?.data || []);
       // Check if user has approved deposits
-      const approvedDeposits = depositsRes.data.filter(d => d.status === 'approved');
+      const deposits = depositsRes?.data || [];
+      const approvedDeposits = deposits.filter(d => d.status === 'approved');
       setHasDeposit(approvedDeposits.length > 0);
     } catch (error) {
+      console.error('Failed to load investment data:', error);
       toast.error('Failed to load investment data');
+      // Set empty arrays to prevent crashes
+      setPackages([]);
+      setUserStakes([]);
     } finally {
       if (isInitial) setInitialLoading(false);
     }
