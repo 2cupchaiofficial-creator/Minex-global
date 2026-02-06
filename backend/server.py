@@ -1625,15 +1625,7 @@ async def startup_event():
     roi_scheduler.start()
     logger.info("Automatic ROI scheduler started")
     
-    # CRITICAL: Fix any missing capital returns first
-    try:
-        fix_result = await roi_scheduler.fix_missing_capital_returns()
-        if fix_result.get("stakes_fixed", 0) > 0:
-            logger.info(f"FIXED {fix_result['stakes_fixed']} stakes with missing capital returns, total ${fix_result['total_amount_fixed']}")
-    except Exception as e:
-        logger.error(f"Error fixing missing capital returns: {e}")
-    
-    # Process any expired stakes that were missed (retroactive processing)
+    # Process any expired stakes that were missed (with duplicate checking)
     try:
         expired_result = await roi_scheduler.process_expired_stakes()
         if expired_result.get("stakes_processed", 0) > 0:
