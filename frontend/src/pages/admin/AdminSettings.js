@@ -48,7 +48,11 @@ const AdminSettings = () => {
           deposit_charge_type: response.data.deposit_charge_type || 'percentage',
           deposit_charge_value: response.data.deposit_charge_value || 0,
           withdrawal_charge_type: response.data.withdrawal_charge_type || 'percentage',
-          withdrawal_charge_value: response.data.withdrawal_charge_value || 0
+          withdrawal_charge_value: response.data.withdrawal_charge_value || 0,
+          usdt_trc20_address: response.data.usdt_trc20_address || response.data.usdt_wallet_address || '',
+          usdt_bep20_address: response.data.usdt_bep20_address || '',
+          qr_code_trc20: response.data.qr_code_trc20 || response.data.qr_code_image || null,
+          qr_code_bep20: response.data.qr_code_bep20 || null
         });
       }
     } catch (error) {
