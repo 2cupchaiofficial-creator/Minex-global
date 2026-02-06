@@ -298,8 +298,12 @@ class AdminSettings(BaseModel):
     model_config = ConfigDict(extra="ignore")
     
     settings_id: str = "default"
-    usdt_wallet_address: str = ""
-    qr_code_image: Optional[str] = None  # Base64 encoded QR code
+    usdt_wallet_address: str = ""  # Legacy - TRC20 address
+    usdt_trc20_address: str = ""  # TRC20 Network wallet address
+    usdt_bep20_address: str = ""  # BEP20 Network wallet address
+    qr_code_image: Optional[str] = None  # Legacy QR code
+    qr_code_trc20: Optional[str] = None  # QR code for TRC20
+    qr_code_bep20: Optional[str] = None  # QR code for BEP20
     withdrawal_dates: List[int] = Field(default_factory=lambda: [1, 15])  # Days of month when withdrawal allowed
     community_star_target: float = 28.0
     community_star_bonus_min: float = 100.0
