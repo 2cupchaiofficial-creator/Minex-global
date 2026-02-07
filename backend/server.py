@@ -97,6 +97,110 @@ async def get_user_referral_tree(user_id: str, depth: int = 6) -> dict:
     
     return tree
 
+async def get_active_promotion():
+    """Get currently active promotion"""
+    now = datetime.now(timezone.utc).isoformat()
+    promotion = await db.promotions.find_one({
+        "is_active": True,
+        "start_date": {"$lte": now},
+        "end_date": {"$gte": now}
+    }, {"_id": 0})
+    return promotion
+
+async def distribute_promotion_rewards(deposit_id: str, user_id: str, amount: float):
+    """Distribute promotion rewards for a deposit"""
+    promotion = await get_active_promotion()
+    if not promotion:
+        return None
+    
+    user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+    if not user:
+        return None
+    
+    rewards_distributed = []
+    
+    # 1. Self Deposit Reward
+    if promotion.get("self_deposit_reward_percent", 0) > 0:
+        self_reward = amount * (promotion["self_deposit_reward_percent"] / 100)
+        
+        # Add to user's wallet
+        await db.users.update_one(
+            {"user_id": user_id},
+            {"$inc": {"wallet_balance": self_reward, "promotion_balance": self_reward}}
+        )
+        
+        # Create reward record
+        self_reward_doc = {
+            "reward_id": str(uuid.uuid4()),
+            "promotion_id": promotion["promotion_id"],
+            "user_id": user_id,
+            "deposit_id": deposit_id,
+            "reward_type": "self",
+            "deposit_amount": amount,
+            "reward_percent": promotion["self_deposit_reward_percent"],
+            "reward_amount": self_reward,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        await db.promotion_rewards.insert_one(self_reward_doc)
+        
+        # Create transaction
+        await db.transactions.insert_one({
+            "transaction_id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "type": "promotion_self",
+            "amount": self_reward,
+            "description": f"Promotion Self Reward ({promotion['self_deposit_reward_percent']}% of ${amount:.2f})",
+            "promotion_id": promotion["promotion_id"],
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+        
+        rewards_distributed.append({"type": "self", "user_id": user_id, "amount": self_reward})
+        logger.info(f"Promotion self reward: ${self_reward:.2f} to {user.get('email')}")
+    
+    # 2. Direct Referral Reward (to the referrer)
+    if promotion.get("direct_referral_reward_percent", 0) > 0 and user.get("referred_by"):
+        referrer = await db.users.find_one({"user_id": user["referred_by"]}, {"_id": 0})
+        if referrer:
+            referral_reward = amount * (promotion["direct_referral_reward_percent"] / 100)
+            
+            # Add to referrer's wallet
+            await db.users.update_one(
+                {"user_id": referrer["user_id"]},
+                {"$inc": {"wallet_balance": referral_reward, "promotion_balance": referral_reward}}
+            )
+            
+            # Create reward record
+            referral_reward_doc = {
+                "reward_id": str(uuid.uuid4()),
+                "promotion_id": promotion["promotion_id"],
+                "user_id": referrer["user_id"],
+                "deposit_id": deposit_id,
+                "reward_type": "referral",
+                "deposit_amount": amount,
+                "reward_percent": promotion["direct_referral_reward_percent"],
+                "reward_amount": referral_reward,
+                "from_user_id": user_id,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+            await db.promotion_rewards.insert_one(referral_reward_doc)
+            
+            # Create transaction
+            await db.transactions.insert_one({
+                "transaction_id": str(uuid.uuid4()),
+                "user_id": referrer["user_id"],
+                "type": "promotion_referral",
+                "amount": referral_reward,
+                "description": f"Promotion Referral Reward ({promotion['direct_referral_reward_percent']}% of ${amount:.2f} from {user.get('email', 'referral')})",
+                "promotion_id": promotion["promotion_id"],
+                "from_user_id": user_id,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            })
+            
+            rewards_distributed.append({"type": "referral", "user_id": referrer["user_id"], "amount": referral_reward})
+            logger.info(f"Promotion referral reward: ${referral_reward:.2f} to {referrer.get('email')}")
+    
+    return rewards_distributed
+
 async def calculate_user_level(user_id: str, total_investment: float) -> int:
     """Calculate user's level based on investment and referrals"""
     user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
