@@ -96,92 +96,94 @@ function App() {
               },
             }}
           />
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-            <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password" element={<ForgotPasswordPage />} />
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+              <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password" element={<ForgotPasswordPage />} />
 
-            <Route path="/dashboard" element={
-              <PrivateRoute>
-                <UserLayout><UserDashboard /></UserLayout>
-              </PrivateRoute>
-            } />
-            <Route path="/deposit" element={
-              <PrivateRoute>
-                <UserLayout><DepositPage /></UserLayout>
-              </PrivateRoute>
-            } />
-            <Route path="/withdraw" element={
-              <PrivateRoute>
-                <UserLayout><WithdrawPage /></UserLayout>
-              </PrivateRoute>
-            } />
-            <Route path="/staking" element={
-              <PrivateRoute>
-                <UserLayout><StakingPage /></UserLayout>
-              </PrivateRoute>
-            } />
-            <Route path="/team" element={
-              <PrivateRoute>
-                <UserLayout><TeamPage /></UserLayout>
-              </PrivateRoute>
-            } />
-            <Route path="/commissions" element={
-              <PrivateRoute>
-                <UserLayout><CommissionsPage /></UserLayout>
-              </PrivateRoute>
-            } />
-            <Route path="/profile" element={
-              <PrivateRoute>
-                <UserLayout><ProfilePage /></UserLayout>
-              </PrivateRoute>
-            } />
-            <Route path="/transactions" element={
-              <PrivateRoute>
-                <UserLayout><TransactionsPage /></UserLayout>
-              </PrivateRoute>
-            } />
+              <Route path="/dashboard" element={
+                <PrivateRoute>
+                  <UserLayout><UserDashboard /></UserLayout>
+                </PrivateRoute>
+              } />
+              <Route path="/deposit" element={
+                <PrivateRoute>
+                  <UserLayout><DepositPage /></UserLayout>
+                </PrivateRoute>
+              } />
+              <Route path="/withdraw" element={
+                <PrivateRoute>
+                  <UserLayout><WithdrawPage /></UserLayout>
+                </PrivateRoute>
+              } />
+              <Route path="/staking" element={
+                <PrivateRoute>
+                  <UserLayout><StakingPage /></UserLayout>
+                </PrivateRoute>
+              } />
+              <Route path="/team" element={
+                <PrivateRoute>
+                  <UserLayout><TeamPage /></UserLayout>
+                </PrivateRoute>
+              } />
+              <Route path="/commissions" element={
+                <PrivateRoute>
+                  <UserLayout><CommissionsPage /></UserLayout>
+                </PrivateRoute>
+              } />
+              <Route path="/profile" element={
+                <PrivateRoute>
+                  <UserLayout><ProfilePage /></UserLayout>
+                </PrivateRoute>
+              } />
+              <Route path="/transactions" element={
+                <PrivateRoute>
+                  <UserLayout><TransactionsPage /></UserLayout>
+                </PrivateRoute>
+              } />
 
-            <Route path="/admin" element={
-              <PrivateRoute adminOnly>
-                <AdminLayout><AdminDashboard /></AdminLayout>
-              </PrivateRoute>
-            } />
-            <Route path="/admin/users" element={
-              <PrivateRoute adminOnly>
-                <AdminLayout><AdminUsers /></AdminLayout>
-              </PrivateRoute>
-            } />
-            <Route path="/admin/deposits" element={
-              <PrivateRoute adminOnly>
-                <AdminLayout><AdminDeposits /></AdminLayout>
-              </PrivateRoute>
-            } />
-            <Route path="/admin/withdrawals" element={
-              <PrivateRoute adminOnly>
-                <AdminLayout><AdminWithdrawals /></AdminLayout>
-              </PrivateRoute>
-            } />
-            <Route path="/admin/packages" element={
-              <PrivateRoute adminOnly>
-                <AdminLayout><AdminPackages /></AdminLayout>
-              </PrivateRoute>
-            } />
-            <Route path="/admin/settings" element={
-              <PrivateRoute adminOnly>
-                <AdminLayout><AdminSettings /></AdminLayout>
-              </PrivateRoute>
-            } />
-            <Route path="/admin/promotions" element={
-              <PrivateRoute adminOnly>
-                <AdminLayout><AdminPromotions /></AdminLayout>
-              </PrivateRoute>
-            } />
+              <Route path="/admin" element={
+                <PrivateRoute adminOnly>
+                  <AdminLayout><AdminDashboard /></AdminLayout>
+                </PrivateRoute>
+              } />
+              <Route path="/admin/users" element={
+                <PrivateRoute adminOnly>
+                  <AdminLayout><AdminUsers /></AdminLayout>
+                </PrivateRoute>
+              } />
+              <Route path="/admin/deposits" element={
+                <PrivateRoute adminOnly>
+                  <AdminLayout><AdminDeposits /></AdminLayout>
+                </PrivateRoute>
+              } />
+              <Route path="/admin/withdrawals" element={
+                <PrivateRoute adminOnly>
+                  <AdminLayout><AdminWithdrawals /></AdminLayout>
+                </PrivateRoute>
+              } />
+              <Route path="/admin/packages" element={
+                <PrivateRoute adminOnly>
+                  <AdminLayout><AdminPackages /></AdminLayout>
+                </PrivateRoute>
+              } />
+              <Route path="/admin/settings" element={
+                <PrivateRoute adminOnly>
+                  <AdminLayout><AdminSettings /></AdminLayout>
+                </PrivateRoute>
+              } />
+              <Route path="/admin/promotions" element={
+                <PrivateRoute adminOnly>
+                  <AdminLayout><AdminPromotions /></AdminLayout>
+                </PrivateRoute>
+              } />
 
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </Suspense>
         </div>
       </AuthProvider>
     </BrowserRouter>
