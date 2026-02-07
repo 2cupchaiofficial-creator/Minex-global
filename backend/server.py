@@ -1316,6 +1316,9 @@ async def approve_deposit(deposit_id: str, admin: User = Depends(get_admin_user)
         {"$inc": {"wallet_balance": amount}}
     )
     
+    # Distribute promotion rewards if active promotion exists
+    promotion_rewards = await distribute_promotion_rewards(deposit_id, user_id, amount)
+    
     # Send notification email
     user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
     if user and background_tasks:
@@ -1326,7 +1329,7 @@ async def approve_deposit(deposit_id: str, admin: User = Depends(get_admin_user)
             amount
         )
     
-    return {"message": "Deposit approved"}
+    return {"message": "Deposit approved", "promotion_rewards": promotion_rewards}
 
 @api_router.post("/admin/deposits/{deposit_id}/reject")
 async def reject_deposit(deposit_id: str, reason: str, admin: User = Depends(get_admin_user), background_tasks: BackgroundTasks = None):
