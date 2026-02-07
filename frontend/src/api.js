@@ -113,6 +113,17 @@ export const adminAPI = {
   // Logs
   getEmailLogs: () => api.get('/admin/email-logs'),
   getSystemLogs: () => api.get('/admin/system-logs'),
+  // Promotions
+  getPromotions: () => api.get('/admin/promotions'),
+  createPromotion: (data) => api.post('/admin/promotions', data),
+  updatePromotion: (promotionId, data) => api.put(`/admin/promotions/${promotionId}`, data),
+  deletePromotion: (promotionId) => api.delete(`/admin/promotions/${promotionId}`),
+  getPromotionRewards: (promotionId) => api.get(`/admin/promotions/${promotionId}/rewards`),
+};
+
+// Public API for promotions
+export const promotionAPI = {
+  getActive: () => api.get('/promotions/active'),
 };
 
 export default api;
