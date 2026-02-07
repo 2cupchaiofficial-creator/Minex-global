@@ -225,6 +225,139 @@ const UserDashboard = () => {
         </motion.div>
       </div>
 
+      {/* Active Promotion Card - Prominently Displayed */}
+      {activePromotion && (
+        <motion.div
+          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ type: "spring", stiffness: 200, damping: 20 }}
+          className="relative overflow-hidden rounded-2xl"
+          data-testid="active-promotion-card"
+        >
+          {/* Glowing Border Effect */}
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-500 via-emerald-400 to-green-500 animate-pulse opacity-70 blur-sm"></div>
+          <div className="absolute inset-[2px] rounded-2xl bg-gradient-to-r from-green-500 via-emerald-400 to-green-500 opacity-30"></div>
+          
+          {/* Animated Glow Ring */}
+          <div className="absolute inset-0 rounded-2xl">
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-green-400/50 to-transparent animate-spin-slow opacity-50" style={{animationDuration: '3s'}}></div>
+          </div>
+          
+          {/* Card Content */}
+          <div className="relative glass rounded-2xl p-5 md:p-6 bg-gradient-to-br from-green-900/80 via-emerald-900/70 to-green-900/80 border border-green-500/50">
+            {/* ACTIVE Badge */}
+            <div className="absolute top-3 right-3 md:top-4 md:right-4">
+              <motion.div 
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-green-500 text-white text-xs font-black rounded-full shadow-lg shadow-green-500/50"
+                animate={{ 
+                  boxShadow: [
+                    "0 0 20px rgba(34, 197, 94, 0.5)",
+                    "0 0 40px rgba(34, 197, 94, 0.8)",
+                    "0 0 20px rgba(34, 197, 94, 0.5)"
+                  ]
+                }}
+                transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+              >
+                <Sparkles className="w-3 h-3" />
+                ACTIVE
+              </motion.div>
+            </div>
+
+            <div className="flex flex-col md:flex-row md:items-center gap-5">
+              {/* Icon & Title Section */}
+              <div className="flex items-center gap-4">
+                <motion.div 
+                  className="p-4 bg-green-500/30 rounded-xl border border-green-400/30"
+                  animate={{ 
+                    scale: [1, 1.1, 1],
+                    rotate: [0, 5, -5, 0]
+                  }}
+                  transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                >
+                  <Gift className="w-8 h-8 text-green-300" />
+                </motion.div>
+                <div>
+                  <h3 className="text-xl md:text-2xl font-black text-white mb-1">{activePromotion.name}</h3>
+                  <p className="text-green-200/80 text-sm">Limited Time Promotion</p>
+                </div>
+              </div>
+
+              {/* Rewards Section */}
+              <div className="flex-1 grid grid-cols-2 gap-4">
+                <div className="bg-green-500/20 rounded-xl p-4 border border-green-400/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <DollarSign className="w-4 h-4 text-green-300" />
+                    <span className="text-green-200 text-xs uppercase font-bold">Self Deposit</span>
+                  </div>
+                  <div className="text-2xl md:text-3xl font-black text-white">
+                    {activePromotion.self_deposit_reward_percent}%
+                  </div>
+                  <p className="text-green-300/60 text-xs mt-1">Reward on your deposits</p>
+                </div>
+                <div className="bg-blue-500/20 rounded-xl p-4 border border-blue-400/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users className="w-4 h-4 text-blue-300" />
+                    <span className="text-blue-200 text-xs uppercase font-bold">Referral</span>
+                  </div>
+                  <div className="text-2xl md:text-3xl font-black text-white">
+                    {activePromotion.direct_referral_reward_percent}%
+                  </div>
+                  <p className="text-blue-300/60 text-xs mt-1">From referral deposits</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Countdown Timer */}
+            {countdown && (
+              <div className="mt-5 pt-5 border-t border-green-500/30">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-green-200">
+                    <Clock className="w-4 h-4" />
+                    <span className="text-sm font-medium">Ends in:</span>
+                  </div>
+                  <div className="flex gap-2 md:gap-3">
+                    <div className="bg-black/30 rounded-lg px-3 py-2 text-center min-w-[50px]">
+                      <div className="text-xl md:text-2xl font-black text-white">{countdown.days}</div>
+                      <div className="text-[10px] text-green-300/60 uppercase">Days</div>
+                    </div>
+                    <div className="bg-black/30 rounded-lg px-3 py-2 text-center min-w-[50px]">
+                      <div className="text-xl md:text-2xl font-black text-white">{String(countdown.hours).padStart(2, '0')}</div>
+                      <div className="text-[10px] text-green-300/60 uppercase">Hours</div>
+                    </div>
+                    <div className="bg-black/30 rounded-lg px-3 py-2 text-center min-w-[50px]">
+                      <div className="text-xl md:text-2xl font-black text-white">{String(countdown.minutes).padStart(2, '0')}</div>
+                      <div className="text-[10px] text-green-300/60 uppercase">Min</div>
+                    </div>
+                    <div className="bg-black/30 rounded-lg px-3 py-2 text-center min-w-[50px]">
+                      <motion.div 
+                        className="text-xl md:text-2xl font-black text-white"
+                        key={countdown.seconds}
+                        initial={{ scale: 1.2, color: "#4ade80" }}
+                        animate={{ scale: 1, color: "#ffffff" }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        {String(countdown.seconds).padStart(2, '0')}
+                      </motion.div>
+                      <div className="text-[10px] text-green-300/60 uppercase">Sec</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Call to Action */}
+            <div className="mt-4">
+              <Link 
+                to="/deposit"
+                className="block w-full text-center py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-white font-bold rounded-xl transition-all shadow-lg shadow-green-500/30 hover:shadow-green-500/50"
+              >
+                Deposit Now & Earn Rewards
+              </Link>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* Secondary Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
         <div className="glass rounded-xl p-4 md:p-5">
