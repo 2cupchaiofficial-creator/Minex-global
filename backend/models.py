@@ -34,6 +34,48 @@ class TransactionType(str, Enum):
     ROI = "roi"
     COMMISSION = "commission"
     STAKING = "staking"
+    PROMOTION_SELF = "promotion_self"
+    PROMOTION_REFERRAL = "promotion_referral"
+
+class PromotionStatus(str, Enum):
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    EXPIRED = "expired"
+
+# Promotion Models
+class PromotionCreate(BaseModel):
+    name: str
+    start_date: str
+    end_date: str
+    self_deposit_reward_percent: float = Field(ge=0, le=100)
+    direct_referral_reward_percent: float = Field(ge=0, le=100)
+    is_active: bool = True
+
+class Promotion(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    promotion_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    start_date: str
+    end_date: str
+    self_deposit_reward_percent: float
+    direct_referral_reward_percent: float
+    is_active: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class PromotionReward(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    reward_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    promotion_id: str
+    user_id: str
+    deposit_id: str
+    reward_type: str  # "self" or "referral"
+    deposit_amount: float
+    reward_percent: float
+    reward_amount: float
+    from_user_id: Optional[str] = None  # For referral rewards
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 # Email Verification Model
 class EmailVerification(BaseModel):
