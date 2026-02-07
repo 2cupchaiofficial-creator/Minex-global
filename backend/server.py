@@ -1247,6 +1247,94 @@ async def get_crypto_prices():
 
 # ============== ADMIN ENDPOINTS ==============
 
+# ============== PROMOTION ENDPOINTS ==============
+
+@api_router.get("/promotions/active")
+async def get_active_promotion_public():
+    """Get currently active promotion (public endpoint)"""
+    promotion = await get_active_promotion()
+    return promotion
+
+@api_router.get("/admin/promotions")
+async def get_all_promotions(admin: User = Depends(get_admin_user)):
+    """Get all promotions"""
+    promotions = await db.promotions.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return promotions
+
+@api_router.post("/admin/promotions")
+async def create_promotion(promo_data: PromotionCreate, admin: User = Depends(get_admin_user)):
+    """Create a new promotion"""
+    promotion_doc = {
+        "promotion_id": str(uuid.uuid4()),
+        "name": promo_data.name,
+        "start_date": promo_data.start_date,
+        "end_date": promo_data.end_date,
+        "self_deposit_reward_percent": promo_data.self_deposit_reward_percent,
+        "direct_referral_reward_percent": promo_data.direct_referral_reward_percent,
+        "is_active": promo_data.is_active,
+        "created_by": admin.user_id,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.promotions.insert_one(promotion_doc)
+    promotion_doc.pop("_id", None)
+    return promotion_doc
+
+@api_router.put("/admin/promotions/{promotion_id}")
+async def update_promotion(promotion_id: str, promo_data: PromotionCreate, admin: User = Depends(get_admin_user)):
+    """Update a promotion"""
+    existing = await db.promotions.find_one({"promotion_id": promotion_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Promotion not found")
+    
+    await db.promotions.update_one(
+        {"promotion_id": promotion_id},
+        {"$set": {
+            "name": promo_data.name,
+            "start_date": promo_data.start_date,
+            "end_date": promo_data.end_date,
+            "self_deposit_reward_percent": promo_data.self_deposit_reward_percent,
+            "direct_referral_reward_percent": promo_data.direct_referral_reward_percent,
+            "is_active": promo_data.is_active,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    updated = await db.promotions.find_one({"promotion_id": promotion_id}, {"_id": 0})
+    return updated
+
+@api_router.delete("/admin/promotions/{promotion_id}")
+async def delete_promotion(promotion_id: str, admin: User = Depends(get_admin_user)):
+    """Delete a promotion"""
+    result = await db.promotions.delete_one({"promotion_id": promotion_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Promotion not found")
+    return {"message": "Promotion deleted"}
+
+@api_router.get("/admin/promotions/{promotion_id}/rewards")
+async def get_promotion_rewards(promotion_id: str, admin: User = Depends(get_admin_user)):
+    """Get all rewards distributed for a promotion"""
+    rewards = await db.promotion_rewards.find({"promotion_id": promotion_id}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    
+    # Enhance with user info
+    for reward in rewards:
+        user = await db.users.find_one({"user_id": reward["user_id"]}, {"_id": 0, "email": 1, "full_name": 1})
+        if user:
+            reward["user_email"] = user.get("email")
+            reward["user_name"] = user.get("full_name")
+        
+        if reward.get("from_user_id"):
+            from_user = await db.users.find_one({"user_id": reward["from_user_id"]}, {"_id": 0, "email": 1})
+            if from_user:
+                reward["from_user_email"] = from_user.get("email")
+    
+    total_distributed = sum(r.get("reward_amount", 0) for r in rewards)
+    
+    return {
+        "rewards": rewards,
+        "total_distributed": total_distributed,
+        "total_count": len(rewards)
+    }
+
 @api_router.get("/admin/dashboard")
 async def get_admin_dashboard(admin: User = Depends(get_admin_user)):
     total_users = await db.users.count_documents({})
