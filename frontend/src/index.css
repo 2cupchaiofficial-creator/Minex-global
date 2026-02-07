@@ -89,3 +89,16 @@
         box-shadow: 0 0 40px rgba(99, 102, 241, 0.6);
     }
 }
+
+.animate-spin-slow {
+    animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
