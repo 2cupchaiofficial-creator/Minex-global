@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, Wallet, Users, Gift, ArrowUpRight, DollarSign, Zap, Target } from 'lucide-react';
-import { userAPI, membershipAPI } from '@/api';
+import { TrendingUp, Wallet, Users, Gift, ArrowUpRight, DollarSign, Zap, Target, Clock, Sparkles } from 'lucide-react';
+import { userAPI, membershipAPI, promotionAPI } from '@/api';
 import { formatCurrency } from '@/utils';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
