@@ -198,6 +198,14 @@ Build a production-ready crypto investment platform called "MINEX GLOBAL" with:
 - POST /api/admin/settings/qr-code
 - POST /api/admin/calculate-roi
 - GET /api/admin/roi-scheduler/status
+- GET /api/admin/promotions
+- POST /api/admin/promotions
+- PUT /api/admin/promotions/{id}
+- DELETE /api/admin/promotions/{id}
+- GET /api/admin/promotions/{id}/rewards
+
+### Public
+- GET /api/promotions/active - Returns currently active promotion
 
 ---
 
