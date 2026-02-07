@@ -96,6 +96,21 @@ const WithdrawPage = () => {
     }
 
     const amount = parseFloat(formData.amount);
+    
+    // Check min withdrawal limit
+    const minWithdrawal = settings?.min_withdrawal_amount || 10;
+    if (amount < minWithdrawal) {
+      toast.error(`Minimum withdrawal amount is ${formatCurrency(minWithdrawal)}`);
+      return;
+    }
+    
+    // Check max withdrawal limit
+    const maxWithdrawal = settings?.max_withdrawal_amount || 10000;
+    if (amount > maxWithdrawal) {
+      toast.error(`Maximum withdrawal amount is ${formatCurrency(maxWithdrawal)}`);
+      return;
+    }
+    
     if (amount > withdrawableBalance) {
       toast.error('Amount exceeds withdrawable balance');
       return;
