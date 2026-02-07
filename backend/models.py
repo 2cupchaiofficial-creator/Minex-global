@@ -355,6 +355,9 @@ class AdminSettings(BaseModel):
     deposit_charge_value: float = 0.0  # Percentage or fixed amount
     withdrawal_charge_type: str = "percentage"  # "percentage" or "fixed"
     withdrawal_charge_value: float = 0.0  # Percentage or fixed amount
+    # Withdrawal Limits
+    min_withdrawal_amount: float = 10.0  # Minimum withdrawal amount
+    max_withdrawal_amount: float = 10000.0  # Maximum withdrawal amount
     # ROI Settings
     roi_distribution_hour: int = 0
     roi_distribution_minute: int = 0
