@@ -1,32 +1,44 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/AuthContext';
 import { Toaster } from 'sonner';
 import './App.css';
 
+// Eager load critical pages
 import LandingPage from '@/pages/LandingPage';
 import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
-import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 
-import UserLayout from '@/layouts/UserLayout';
-import UserDashboard from '@/pages/user/UserDashboard';
-import DepositPage from '@/pages/user/DepositPage';
-import WithdrawPage from '@/pages/user/WithdrawPage';
-import StakingPage from '@/pages/user/StakingPage';
-import TeamPage from '@/pages/user/TeamPage';
-import CommissionsPage from '@/pages/user/CommissionsPage';
-import ProfilePage from '@/pages/user/ProfilePage';
-import TransactionsPage from '@/pages/user/TransactionsPage';
+// Lazy load other pages for better performance
+const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPasswordPage'));
+const UserLayout = lazy(() => import('@/layouts/UserLayout'));
+const UserDashboard = lazy(() => import('@/pages/user/UserDashboard'));
+const DepositPage = lazy(() => import('@/pages/user/DepositPage'));
+const WithdrawPage = lazy(() => import('@/pages/user/WithdrawPage'));
+const StakingPage = lazy(() => import('@/pages/user/StakingPage'));
+const TeamPage = lazy(() => import('@/pages/user/TeamPage'));
+const CommissionsPage = lazy(() => import('@/pages/user/CommissionsPage'));
+const ProfilePage = lazy(() => import('@/pages/user/ProfilePage'));
+const TransactionsPage = lazy(() => import('@/pages/user/TransactionsPage'));
 
-import AdminLayout from '@/layouts/AdminLayout';
-import AdminDashboard from '@/pages/admin/AdminDashboard';
-import AdminUsers from '@/pages/admin/AdminUsers';
-import AdminDeposits from '@/pages/admin/AdminDeposits';
-import AdminWithdrawals from '@/pages/admin/AdminWithdrawals';
-import AdminPackages from '@/pages/admin/AdminPackages';
-import AdminSettings from '@/pages/admin/AdminSettings';
-import AdminPromotions from '@/pages/admin/AdminPromotions';
+const AdminLayout = lazy(() => import('@/layouts/AdminLayout'));
+const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
+const AdminUsers = lazy(() => import('@/pages/admin/AdminUsers'));
+const AdminDeposits = lazy(() => import('@/pages/admin/AdminDeposits'));
+const AdminWithdrawals = lazy(() => import('@/pages/admin/AdminWithdrawals'));
+const AdminPackages = lazy(() => import('@/pages/admin/AdminPackages'));
+const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
+const AdminPromotions = lazy(() => import('@/pages/admin/AdminPromotions'));
+
+// Loading fallback component
+const PageLoader = () => (
+  <div className="min-h-screen bg-[#02040A] flex items-center justify-center">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+      <p className="text-gray-400 text-sm">Loading...</p>
+    </div>
+  </div>
+);
 
 const PrivateRoute = ({ children, adminOnly = false }) => {
   const { user, loading } = useAuth();
