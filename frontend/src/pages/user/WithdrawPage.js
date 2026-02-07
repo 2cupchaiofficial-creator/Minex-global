@@ -288,12 +288,14 @@ const WithdrawPage = () => {
                 onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                 className="w-full bg-gray-900/50 border border-gray-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-lg px-4 py-3 text-white"
                 placeholder="Enter amount"
-                max={withdrawableBalance}
+                min={settings?.min_withdrawal_amount || 10}
+                max={Math.min(withdrawableBalance, settings?.max_withdrawal_amount || 10000)}
                 required
                 data-testid="withdrawal-amount-input"
               />
-              <div className="text-xs text-gray-500 mt-2">
-                Maximum: {formatCurrency(withdrawableBalance)}
+              <div className="flex justify-between text-xs text-gray-500 mt-2">
+                <span>Min: {formatCurrency(settings?.min_withdrawal_amount || 10)}</span>
+                <span>Max: {formatCurrency(Math.min(withdrawableBalance, settings?.max_withdrawal_amount || 10000))}</span>
               </div>
               {settings?.withdrawal_charge_value > 0 && (
                 <p className="text-xs text-yellow-400 mt-1">
