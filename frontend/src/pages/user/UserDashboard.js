@@ -9,20 +9,51 @@ import { Link } from 'react-router-dom';
 const UserDashboard = () => {
   const [stats, setStats] = useState(null);
   const [packages, setPackages] = useState([]);
+  const [activePromotion, setActivePromotion] = useState(null);
+  const [countdown, setCountdown] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadData();
   }, []);
 
+  // Countdown timer effect
+  useEffect(() => {
+    if (!activePromotion) return;
+
+    const updateCountdown = () => {
+      const now = new Date();
+      const end = new Date(activePromotion.end_date);
+      const diff = end - now;
+
+      if (diff <= 0) {
+        setCountdown(null);
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setCountdown({ days, hours, minutes, seconds });
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [activePromotion]);
+
   const loadData = async () => {
     try {
-      const [statsRes, packagesRes] = await Promise.all([
+      const [statsRes, packagesRes, promoRes] = await Promise.all([
         userAPI.getDashboard(),
-        membershipAPI.getPackages()
+        membershipAPI.getPackages(),
+        promotionAPI.getActive().catch(() => ({ data: null }))
       ]);
       setStats(statsRes.data);
       setPackages(packagesRes.data);
+      setActivePromotion(promoRes.data);
     } catch (error) {
       toast.error('Failed to load dashboard data');
     } finally {
