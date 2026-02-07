@@ -162,6 +162,11 @@ function App() {
                 <AdminLayout><AdminSettings /></AdminLayout>
               </PrivateRoute>
             } />
+            <Route path="/admin/promotions" element={
+              <PrivateRoute adminOnly>
+                <AdminLayout><AdminPromotions /></AdminLayout>
+              </PrivateRoute>
+            } />
 
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
