@@ -11,7 +11,8 @@ import {
   Menu, 
   X,
   Shield,
-  Package
+  Package,
+  Gift
 } from 'lucide-react';
 
 const AdminLayout = ({ children }) => {
@@ -26,6 +27,7 @@ const AdminLayout = ({ children }) => {
     { path: '/admin/deposits', icon: ArrowDownToLine, label: 'Deposits' },
     { path: '/admin/withdrawals', icon: ArrowUpFromLine, label: 'Withdrawals' },
     { path: '/admin/packages', icon: Package, label: 'Investment Packages' },
+    { path: '/admin/promotions', icon: Gift, label: 'Promotions' },
     { path: '/admin/settings', icon: Settings, label: 'Settings' },
   ];
 
