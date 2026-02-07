@@ -69,6 +69,31 @@ Build a production-ready crypto investment platform called "MINEX GLOBAL" with:
 - [x] Frontend ForgotPasswordPage with 3-step flow
 - [x] "Forgot Password?" link on login page
 
+### Phase 7 - Promotion System & Withdrawal Limits (Completed - Feb 7, 2026)
+- [x] **Promotion System**:
+  - Admin can create/edit/delete promotions with name, dates, self reward %, referral reward %
+  - Automatic reward distribution when deposits are approved during active promotion
+  - Self deposit rewards credited instantly to user's cash wallet
+  - Direct referral rewards credited to referrer's cash wallet
+  - Promotion rewards audit log (promotion_rewards collection)
+  - User dashboard displays active promotion card with:
+    - Glowing border animation
+    - ACTIVE badge with pulse effect
+    - Self deposit reward percentage
+    - Direct referral reward percentage
+    - Countdown timer (days, hours, minutes, seconds)
+    - "Deposit Now & Earn Rewards" CTA button
+- [x] **Withdrawal Limits**:
+  - Admin can set minimum withdrawal amount
+  - Admin can set maximum withdrawal amount
+  - Backend validation rejects amounts outside limits
+  - User withdrawal page shows limits notice
+  - Withdrawal form shows min/max values
+- [x] **Performance Optimization**:
+  - React.lazy code-splitting for route components
+  - Lazy loading for admin and user pages
+  - Suspense fallback with loading spinner
+
 ---
 
 ## Architecture
