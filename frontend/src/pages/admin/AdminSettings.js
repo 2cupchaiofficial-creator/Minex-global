@@ -49,6 +49,8 @@ const AdminSettings = () => {
           deposit_charge_value: response.data.deposit_charge_value || 0,
           withdrawal_charge_type: response.data.withdrawal_charge_type || 'percentage',
           withdrawal_charge_value: response.data.withdrawal_charge_value || 0,
+          min_withdrawal_amount: response.data.min_withdrawal_amount || 10,
+          max_withdrawal_amount: response.data.max_withdrawal_amount || 10000,
           usdt_trc20_address: response.data.usdt_trc20_address || response.data.usdt_wallet_address || '',
           usdt_bep20_address: response.data.usdt_bep20_address || '',
           qr_code_trc20: response.data.qr_code_trc20 || response.data.qr_code_image || null,
