@@ -953,11 +953,22 @@ async def create_withdrawal(withdrawal_data: WithdrawalCreate, current_user: Use
     # wallet_balance = total cash available for withdrawal
     withdrawable_balance = current_user.wallet_balance
     
+    # Check if withdrawal is allowed today (based on admin settings)
+    settings = await db.admin_settings.find_one({"settings_id": "default"}, {"_id": 0})
+    
+    # Validate withdrawal limits
+    min_withdrawal = settings.get("min_withdrawal_amount", 10.0) if settings else 10.0
+    max_withdrawal = settings.get("max_withdrawal_amount", 10000.0) if settings else 10000.0
+    
+    if withdrawal_data.amount < min_withdrawal:
+        raise HTTPException(status_code=400, detail=f"Minimum withdrawal amount is ${min_withdrawal:.2f}")
+    
+    if withdrawal_data.amount > max_withdrawal:
+        raise HTTPException(status_code=400, detail=f"Maximum withdrawal amount is ${max_withdrawal:.2f}")
+    
     if withdrawal_data.amount > withdrawable_balance:
         raise HTTPException(status_code=400, detail=f"Insufficient withdrawable balance. Available: ${withdrawable_balance:.2f}")
     
-    # Check if withdrawal is allowed today (based on admin settings)
-    settings = await db.admin_settings.find_one({"settings_id": "default"}, {"_id": 0})
     if settings:
         withdrawal_dates = settings.get("withdrawal_dates", [1, 15])
         today = datetime.now(timezone.utc).day
