@@ -416,6 +416,62 @@ const AdminSettings = () => {
             Withdrawal Settings
           </h2>
           
+          {/* Withdrawal Limits */}
+          <div className="grid md:grid-cols-2 gap-6 mb-6">
+            <div className="bg-orange-500/5 border border-orange-500/20 rounded-lg p-4">
+              <h3 className="text-md font-semibold text-orange-400 mb-4 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-orange-400"></span>
+                Minimum Withdrawal
+              </h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Amount ($)</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={settings.min_withdrawal_amount || 10}
+                    onChange={(e) => setSettings({ ...settings, min_withdrawal_amount: parseFloat(e.target.value) || 0 })}
+                    className="w-full bg-gray-900/50 border border-gray-800 focus:border-orange-500 rounded-lg px-4 py-3 text-white pr-10"
+                    placeholder="10"
+                    data-testid="min-withdrawal-input"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+                    <DollarSign className="w-4 h-4" />
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Users cannot withdraw less than this amount</p>
+              </div>
+            </div>
+
+            <div className="bg-purple-500/5 border border-purple-500/20 rounded-lg p-4">
+              <h3 className="text-md font-semibold text-purple-400 mb-4 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-purple-400"></span>
+                Maximum Withdrawal
+              </h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Amount ($)</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={settings.max_withdrawal_amount || 10000}
+                    onChange={(e) => setSettings({ ...settings, max_withdrawal_amount: parseFloat(e.target.value) || 0 })}
+                    className="w-full bg-gray-900/50 border border-gray-800 focus:border-purple-500 rounded-lg px-4 py-3 text-white pr-10"
+                    placeholder="10000"
+                    data-testid="max-withdrawal-input"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+                    <DollarSign className="w-4 h-4" />
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Users cannot withdraw more than this amount per request</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Withdrawal Dates */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-3">Allowed Withdrawal Dates</label>
             <p className="text-xs text-gray-500 mb-4">Select the days of the month when users can withdraw</p>
