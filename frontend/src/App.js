@@ -26,6 +26,7 @@ import AdminDeposits from '@/pages/admin/AdminDeposits';
 import AdminWithdrawals from '@/pages/admin/AdminWithdrawals';
 import AdminPackages from '@/pages/admin/AdminPackages';
 import AdminSettings from '@/pages/admin/AdminSettings';
+import AdminPromotions from '@/pages/admin/AdminPromotions';
 
 const PrivateRoute = ({ children, adminOnly = false }) => {
   const { user, loading } = useAuth();
