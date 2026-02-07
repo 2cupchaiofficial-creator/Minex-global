@@ -211,6 +211,11 @@ Build a production-ready crypto investment platform called "MINEX GLOBAL" with:
 
 ## Backlog / Future Tasks
 
+### P0 - Completed
+- [x] Promotion System with admin CRUD and user dashboard display
+- [x] Withdrawal Limits (min/max) with admin settings and validation
+- [x] Performance optimization with code-splitting
+
 ### P1 - High Priority
 - [ ] Full mobile responsiveness review
 - [ ] Comprehensive error handling & loading states
