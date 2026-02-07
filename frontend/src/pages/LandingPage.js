@@ -153,10 +153,10 @@ const LandingPage = () => {
               className="flex items-center space-x-2 md:space-x-4"
             >
               <Link to="/login" data-testid="nav-login-btn">
-                <button className="text-sm md:text-base px-3 md:px-6 py-2 text-white border border-white/20 hover:border-white/40 rounded-lg transition-all">Login</button>
+                <button className="text-sm md:text-base px-4 md:px-6 py-2.5 md:py-2 min-h-[44px] text-white border border-white/20 hover:border-white/40 rounded-lg transition-all">Login</button>
               </Link>
               <Link to="/register" data-testid="nav-register-btn">
-                <button className="btn-primary text-sm md:text-base px-3 md:px-6 py-2">Get Started</button>
+                <button className="btn-primary text-sm md:text-base px-4 md:px-6 py-2.5 md:py-2 min-h-[44px]">Get Started</button>
               </Link>
             </motion.div>
           </div>
