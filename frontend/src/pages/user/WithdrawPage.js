@@ -234,6 +234,26 @@ const WithdrawPage = () => {
         </div>
       )}
 
+      {/* Withdrawal Limits Notice */}
+      {settings && (settings.min_withdrawal_amount > 0 || settings.max_withdrawal_amount > 0) && (
+        <div className="glass rounded-xl p-4 bg-purple-500/5 border border-purple-500/20">
+          <div className="flex items-start gap-3">
+            <Wallet className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-white">Withdrawal Limits</p>
+              <div className="flex gap-4 mt-1">
+                <p className="text-xs text-gray-400">
+                  Minimum: <span className="text-purple-400 font-bold">{formatCurrency(settings.min_withdrawal_amount || 10)}</span>
+                </p>
+                <p className="text-xs text-gray-400">
+                  Maximum: <span className="text-purple-400 font-bold">{formatCurrency(settings.max_withdrawal_amount || 10000)}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showForm && withdrawalAllowed && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
