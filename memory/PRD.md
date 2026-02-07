@@ -143,9 +143,11 @@ Build a production-ready crypto investment platform called "MINEX GLOBAL" with:
 - `withdrawals` - Withdrawal requests
 - `commissions` - Commission/profit share records
 - `roi_transactions` - Daily ROI distributions
-- `admin_settings` - Platform settings (QR codes, withdrawal dates)
+- `admin_settings` - Platform settings (QR codes, withdrawal dates, withdrawal limits)
 - `email_logs` - Email delivery logs
 - `system_logs` - ROI scheduler logs
+- `promotions` - Promotion campaigns
+- `promotion_rewards` - Distributed promotion rewards audit log
 
 ---
 
