@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { adminAPI } from '@/api';
 import { formatCurrency, formatDate } from '@/utils';
 import { toast } from 'sonner';
-import { Search, User, Mail, TrendingUp, Wallet, Users, Calendar } from 'lucide-react';
+import { Search, User, Mail, TrendingUp, Wallet, Users, Calendar, LogIn, Loader2 } from 'lucide-react';
+import { useAuth } from '@/AuthContext';
 
 const AdminUsers = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [impersonating, setImpersonating] = useState(null);
 
   useEffect(() => {
     loadUsers();
@@ -21,6 +26,38 @@ const AdminUsers = () => {
       toast.error('Failed to load users');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleImpersonate = async (user) => {
+    if (user.role === 'ADMIN') {
+      toast.error('Cannot login as admin users');
+      return;
+    }
+
+    if (!window.confirm(`Login as "${user.full_name}" (${user.email})? You will be redirected to their dashboard.`)) {
+      return;
+    }
+
+    setImpersonating(user.user_id);
+    try {
+      const response = await adminAPI.impersonateUser(user.user_id);
+      
+      // Store the new token and user data
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      
+      // Update auth context
+      login(response.data.token, response.data.user);
+      
+      toast.success(`Logged in as ${user.full_name}`);
+      
+      // Redirect to user dashboard
+      navigate('/dashboard');
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to login as user');
+    } finally {
+      setImpersonating(null);
     }
   };
 
@@ -75,12 +112,13 @@ const AdminUsers = () => {
                 <th className="text-left py-4 px-4 text-gray-400 font-medium">Balance</th>
                 <th className="text-left py-4 px-4 text-gray-400 font-medium">Team</th>
                 <th className="text-left py-4 px-4 text-gray-400 font-medium">Joined</th>
+                <th className="text-left py-4 px-4 text-gray-400 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-12 text-gray-500">
+                  <td colSpan={8} className="text-center py-12 text-gray-500">
                     No users found
                   </td>
                 </tr>
@@ -100,6 +138,24 @@ const AdminUsers = () => {
                       {user.direct_referrals?.length || 0}D / {user.indirect_referrals?.length || 0}I
                     </td>
                     <td className="py-4 px-4 text-gray-400 text-sm">{formatDate(user.created_at)}</td>
+                    <td className="py-4 px-4">
+                      {user.role !== 'ADMIN' && (
+                        <button
+                          onClick={() => handleImpersonate(user)}
+                          disabled={impersonating === user.user_id}
+                          className="flex items-center gap-2 px-3 py-2 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 rounded-lg transition min-h-[44px] disabled:opacity-50"
+                          data-testid={`login-as-${user.user_id}`}
+                          title="Login as this user"
+                        >
+                          {impersonating === user.user_id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <LogIn className="w-4 h-4" />
+                          )}
+                          <span className="text-sm font-medium">Login</span>
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))
               )}
@@ -172,6 +228,28 @@ const AdminUsers = () => {
                     {formatDate(user.created_at)}
                   </div>
                 </div>
+
+                {/* Login as User Button */}
+                {user.role !== 'ADMIN' && (
+                  <button
+                    onClick={() => handleImpersonate(user)}
+                    disabled={impersonating === user.user_id}
+                    className="w-full flex items-center justify-center gap-2 py-3 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 rounded-lg transition min-h-[48px] disabled:opacity-50"
+                    data-testid={`login-as-mobile-${user.user_id}`}
+                  >
+                    {impersonating === user.user_id ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="text-sm font-medium">Logging in...</span>
+                      </>
+                    ) : (
+                      <>
+                        <LogIn className="w-4 h-4" />
+                        <span className="text-sm font-medium">Login as User</span>
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             ))
           )}
