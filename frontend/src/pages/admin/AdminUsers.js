@@ -139,7 +139,7 @@ const AdminUsers = () => {
                     </td>
                     <td className="py-4 px-4 text-gray-400 text-sm">{formatDate(user.created_at)}</td>
                     <td className="py-4 px-4">
-                      {user.role !== 'ADMIN' && (
+                      {user.role?.toLowerCase() !== 'admin' && (
                         <button
                           onClick={() => handleImpersonate(user)}
                           disabled={impersonating === user.user_id}
