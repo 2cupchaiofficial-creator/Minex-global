@@ -80,6 +80,7 @@ export const cryptoAPI = {
 export const adminAPI = {
   getDashboard: () => api.get('/admin/dashboard'),
   getUsers: () => api.get('/admin/users'),
+  impersonateUser: (userId) => api.post(`/admin/users/${userId}/impersonate`),
   getDeposits: () => api.get('/admin/deposits'),
   approveDeposit: (depositId) => api.post(`/admin/deposits/${depositId}/approve`),
   rejectDeposit: (depositId, reason) => api.post(`/admin/deposits/${depositId}/reject`, null, { params: { reason } }),
