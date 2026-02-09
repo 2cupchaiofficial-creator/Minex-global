@@ -24,11 +24,31 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   };
 
-  const login = async (email, password) => {
-    const response = await authAPI.login({ email, password });
-    localStorage.setItem('token', response.data.token);
-    setUser(response.data.user);
-    return response.data;
+  const login = async (tokenOrEmail, passwordOrUser) => {
+    // Check if this is a direct login (token + user object) or email/password login
+    if (typeof passwordOrUser === 'object' && passwordOrUser !== null) {
+      // Direct login with token and user object (used by admin impersonation)
+      localStorage.setItem('token', tokenOrEmail);
+      setUser(passwordOrUser);
+      return { token: tokenOrEmail, user: passwordOrUser };
+    } else {
+      // Normal email/password login
+      const response = await authAPI.login({ email: tokenOrEmail, password: passwordOrUser });
+      localStorage.setItem('token', response.data.token);
+      setUser(response.data.user);
+      return response.data;
+    }
+  };
+
+  const refreshUser = async () => {
+    try {
+      const response = await userAPI.getProfile();
+      setUser(response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to refresh user:', error);
+      return null;
+    }
   };
 
   const register = async (data) => {
