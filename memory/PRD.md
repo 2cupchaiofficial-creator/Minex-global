@@ -117,6 +117,21 @@ Build a production-ready crypto investment platform called "MINEX GLOBAL" with:
   - All pages tested on 375px viewport
   - No overflow issues detected
 
+### Phase 9 - Admin User Impersonation (Completed - Feb 9, 2026)
+- [x] **Backend Endpoint**: POST /api/admin/users/{user_id}/impersonate
+  - Admin can generate a token for any non-admin user
+  - Impersonation logged to system_logs for audit trail
+  - Returns new token and user data
+- [x] **Frontend Integration**:
+  - "Login" button in AdminUsers table (desktop) and cards (mobile)
+  - Confirmation dialog before impersonation
+  - Loading state while switching
+  - Automatic redirect to user dashboard
+  - Auth context updated with new user session
+- [x] **Security**:
+  - Admin cannot impersonate other admins
+  - All impersonations logged with admin_id and target_user_id
+
 ---
 
 ## Architecture
