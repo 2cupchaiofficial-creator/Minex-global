@@ -30,7 +30,7 @@ const AdminUsers = () => {
   };
 
   const handleImpersonate = async (user) => {
-    if (user.role === 'ADMIN') {
+    if (user.role?.toLowerCase() === 'admin') {
       toast.error('Cannot login as admin users');
       return;
     }
