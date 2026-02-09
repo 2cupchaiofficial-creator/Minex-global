@@ -1372,6 +1372,55 @@ async def get_all_users(admin: User = Depends(get_admin_user)):
     users = await db.users.find({}, {"_id": 0, "password_hash": 0}).sort("created_at", -1).to_list(1000)
     return users
 
+@api_router.post("/admin/users/{user_id}/impersonate")
+async def impersonate_user(user_id: str, admin: User = Depends(get_admin_user)):
+    """
+    Allow admin to login as any user. Returns a token for the target user.
+    Admin can then use this token to act as that user.
+    """
+    # Find the target user
+    target_user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Don't allow impersonating other admins
+    if target_user.get("role") == UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Cannot impersonate admin users")
+    
+    # Generate a new token for the target user
+    token = create_access_token({
+        "user_id": target_user["user_id"],
+        "email": target_user["email"],
+        "role": target_user.get("role", "USER"),
+        "impersonated_by": admin.user_id  # Track who impersonated
+    })
+    
+    # Log the impersonation for audit
+    await db.system_logs.insert_one({
+        "log_id": str(uuid.uuid4()),
+        "type": "ADMIN_IMPERSONATION",
+        "admin_id": admin.user_id,
+        "admin_email": admin.email,
+        "target_user_id": user_id,
+        "target_user_email": target_user.get("email"),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    logger.info(f"Admin {admin.email} impersonated user {target_user.get('email')}")
+    
+    return {
+        "token": token,
+        "user": {
+            "user_id": target_user["user_id"],
+            "email": target_user["email"],
+            "full_name": target_user.get("full_name"),
+            "role": target_user.get("role", "USER"),
+            "level": target_user.get("level", 1),
+            "wallet_balance": target_user.get("wallet_balance", 0),
+            "referral_code": target_user.get("referral_code")
+        }
+    }
+
 @api_router.get("/admin/deposits")
 async def get_all_deposits(admin: User = Depends(get_admin_user)):
     deposits = await db.deposits.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
