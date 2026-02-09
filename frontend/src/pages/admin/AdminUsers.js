@@ -230,7 +230,7 @@ const AdminUsers = () => {
                 </div>
 
                 {/* Login as User Button */}
-                {user.role !== 'ADMIN' && (
+                {user.role?.toLowerCase() !== 'admin' && (
                   <button
                     onClick={() => handleImpersonate(user)}
                     disabled={impersonating === user.user_id}
