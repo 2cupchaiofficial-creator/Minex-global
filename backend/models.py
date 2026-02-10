@@ -106,9 +106,10 @@ class User(BaseModel):
     role: UserRole = UserRole.USER
     level: int = 1  # Package level (1-6)
     total_investment: float = 0.0
-    wallet_balance: float = 0.0  # Available balance for staking/withdrawal
+    wallet_balance: float = 0.0  # Available balance for staking/withdrawal - USED FOR LEVEL CALCULATION
     roi_balance: float = 0.0
     commission_balance: float = 0.0
+    staked_amount: float = 0.0  # Currently active staked amount
     referral_code: str
     referred_by: Optional[str] = None
     direct_referrals: List[str] = Field(default_factory=list)
