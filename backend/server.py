@@ -1033,6 +1033,16 @@ async def create_withdrawal(withdrawal_data: WithdrawalCreate, current_user: Use
         }}
     )
     
+    # Recalculate user level after withdrawal (may drop level if balance below minimum)
+    updated_user = await db.users.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    new_level = await calculate_user_level(current_user.user_id, updated_user["wallet_balance"])
+    if new_level != current_user.level:
+        await db.users.update_one(
+            {"user_id": current_user.user_id},
+            {"$set": {"level": new_level}}
+        )
+        logger.info(f"User {current_user.email} level changed: {current_user.level} -> {new_level} after withdrawal request")
+    
     return withdrawal_doc
 
 @api_router.get("/withdrawals")
