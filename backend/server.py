@@ -743,10 +743,10 @@ async def get_dashboard(current_user: User = Depends(get_current_user)):
             "level_6_required": next_package.get("level_6_required", 0)
         }
         
-        # Calculate progress towards next level using STAKED amount (not total_investment)
+        # Calculate progress towards next level using WALLET BALANCE (deposited amount)
         promotion_progress = {
-            "investment_met": current_user.staked_amount >= next_package.get("min_investment", 0),
-            "investment_current": current_user.staked_amount,  # Show active staking, not total investment
+            "investment_met": current_user.wallet_balance >= next_package.get("min_investment", 0),
+            "investment_current": current_user.wallet_balance,  # Show wallet balance for level progress
             "investment_required": next_package.get("min_investment", 0),
             "direct_met": team_counts["level_1"] >= next_package.get("direct_required", 0),
             "direct_current": team_counts["level_1"],
