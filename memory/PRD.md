@@ -132,6 +132,20 @@ Build a production-ready crypto investment platform called "MINEX GLOBAL" with:
   - Admin cannot impersonate other admins
   - All impersonations logged with admin_id and target_user_id
 
+### Phase 10 - Level Calculation Logic Fix (Completed - Feb 10, 2026)
+- [x] **CRITICAL BUG FIX**: Level progression now uses `staked_amount` (active stakes) instead of `total_investment` (historical)
+- [x] **Backend Changes**:
+  - `calculate_user_level()` function updated to use staked_amount
+  - Dashboard progress calculation updated to show staked_amount
+  - New endpoint: POST /api/admin/recalculate-all-levels
+- [x] **Frontend Changes**:
+  - AdminUsers table column renamed from "Investment" to "Active Staking"
+  - "Fix User Levels" button added to admin Users page
+  - Button triggers recalculation and shows detailed results
+- [x] **Database Impact**:
+  - All user levels recalculated based on correct logic
+  - System logs track level recalculation operations
+
 ---
 
 ## Architecture
