@@ -1549,8 +1549,19 @@ async def approve_deposit(deposit_id: str, admin: User = Depends(get_admin_user)
     # Distribute promotion rewards if active promotion exists
     promotion_rewards = await distribute_promotion_rewards(deposit_id, user_id, amount)
     
-    # Send notification email
+    # Recalculate user level after deposit (may upgrade level if balance meets minimum)
     user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+    if user:
+        old_level = user.get("level", 1)
+        new_level = await calculate_user_level(user_id, user["wallet_balance"])
+        if new_level != old_level:
+            await db.users.update_one(
+                {"user_id": user_id},
+                {"$set": {"level": new_level}}
+            )
+            logger.info(f"User {user.get('email')} level changed: {old_level} -> {new_level} after deposit approval")
+    
+    # Send notification email
     if user and background_tasks:
         background_tasks.add_task(
             email_service.send_deposit_approved,
