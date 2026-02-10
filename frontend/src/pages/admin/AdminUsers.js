@@ -157,8 +157,8 @@ const AdminUsers = () => {
                 <th className="text-left py-4 px-4 text-gray-400 font-medium">Name</th>
                 <th className="text-left py-4 px-4 text-gray-400 font-medium">Email</th>
                 <th className="text-left py-4 px-4 text-gray-400 font-medium">Level</th>
-                <th className="text-left py-4 px-4 text-gray-400 font-medium">Active Staking</th>
-                <th className="text-left py-4 px-4 text-gray-400 font-medium">Balance</th>
+                <th className="text-left py-4 px-4 text-gray-400 font-medium">Wallet Balance</th>
+                <th className="text-left py-4 px-4 text-gray-400 font-medium">ROI Balance</th>
                 <th className="text-left py-4 px-4 text-gray-400 font-medium">Team</th>
                 <th className="text-left py-4 px-4 text-gray-400 font-medium">Joined</th>
                 <th className="text-left py-4 px-4 text-gray-400 font-medium">Actions</th>
