@@ -201,10 +201,12 @@ async def distribute_promotion_rewards(deposit_id: str, user_id: str, amount: fl
     
     return rewards_distributed
 
-async def calculate_user_level(user_id: str, staked_amount: float) -> int:
-    """Calculate user's level based on ACTIVE staked amount and referrals
+async def calculate_user_level(user_id: str, wallet_balance: float) -> int:
+    """Calculate user's level based on WALLET BALANCE (deposited amount) and referrals
     
-    IMPORTANT: Uses staked_amount (currently active stakes), NOT total_investment (historical)
+    IMPORTANT: Uses wallet_balance (deposited funds available in dashboard), NOT total_investment (historical)
+    User achieves level when they deposit minimum amount AND meet referral requirements.
+    User loses level if they withdraw and balance drops below minimum.
     """
     user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
     if not user:
@@ -222,8 +224,8 @@ async def calculate_user_level(user_id: str, staked_amount: float) -> int:
             direct_count = len(referral_tree.get("level_1", []))
             indirect_count = sum(len(referral_tree.get(f"level_{i}", [])) for i in range(2, 7))
             
-            # Use staked_amount for level check, NOT total_investment
-            if (staked_amount >= pkg.get("min_investment", 0) and 
+            # Use wallet_balance for level check - user must have deposited funds available
+            if (wallet_balance >= pkg.get("min_investment", 0) and 
                 direct_count >= pkg.get("direct_required", 0) and 
                 indirect_count >= pkg.get("indirect_required", 0)):
                 return pkg["level"]
@@ -231,8 +233,8 @@ async def calculate_user_level(user_id: str, staked_amount: float) -> int:
     
     # Check each package from highest to lowest
     for pkg in packages:
-        # Check investment requirement using STAKED amount (active stakes)
-        if staked_amount < pkg.get("min_investment", 0):
+        # Check investment requirement using WALLET BALANCE (deposited amount in dashboard)
+        if wallet_balance < pkg.get("min_investment", 0):
             continue
         
         # Check referral requirements for each level
