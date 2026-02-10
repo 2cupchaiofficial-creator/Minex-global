@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { adminAPI } from '@/api';
 import { formatCurrency, formatDate } from '@/utils';
 import { toast } from 'sonner';
-import { Search, User, Mail, TrendingUp, Wallet, Users, Calendar, LogIn, Loader2 } from 'lucide-react';
+import { Search, User, Mail, TrendingUp, Wallet, Users, Calendar, LogIn, Loader2, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/AuthContext';
 
 const AdminUsers = () => {
@@ -13,6 +13,7 @@ const AdminUsers = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [impersonating, setImpersonating] = useState(null);
+  const [recalculating, setRecalculating] = useState(false);
 
   useEffect(() => {
     loadUsers();
