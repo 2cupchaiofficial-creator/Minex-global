@@ -81,6 +81,7 @@ export const adminAPI = {
   getDashboard: () => api.get('/admin/dashboard'),
   getUsers: () => api.get('/admin/users'),
   impersonateUser: (userId) => api.post(`/admin/users/${userId}/impersonate`),
+  recalculateAllLevels: () => api.post('/admin/recalculate-all-levels'),
   getDeposits: () => api.get('/admin/deposits'),
   approveDeposit: (depositId) => api.post(`/admin/deposits/${depositId}/approve`),
   rejectDeposit: (depositId, reason) => api.post(`/admin/deposits/${depositId}/reject`, null, { params: { reason } }),
