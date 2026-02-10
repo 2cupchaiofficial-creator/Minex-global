@@ -201,8 +201,11 @@ async def distribute_promotion_rewards(deposit_id: str, user_id: str, amount: fl
     
     return rewards_distributed
 
-async def calculate_user_level(user_id: str, total_investment: float) -> int:
-    """Calculate user's level based on investment and referrals"""
+async def calculate_user_level(user_id: str, staked_amount: float) -> int:
+    """Calculate user's level based on ACTIVE staked amount and referrals
+    
+    IMPORTANT: Uses staked_amount (currently active stakes), NOT total_investment (historical)
+    """
     user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
     if not user:
         return 1
@@ -219,7 +222,8 @@ async def calculate_user_level(user_id: str, total_investment: float) -> int:
             direct_count = len(referral_tree.get("level_1", []))
             indirect_count = sum(len(referral_tree.get(f"level_{i}", [])) for i in range(2, 7))
             
-            if (total_investment >= pkg.get("min_investment", 0) and 
+            # Use staked_amount for level check, NOT total_investment
+            if (staked_amount >= pkg.get("min_investment", 0) and 
                 direct_count >= pkg.get("direct_required", 0) and 
                 indirect_count >= pkg.get("indirect_required", 0)):
                 return pkg["level"]
@@ -227,8 +231,8 @@ async def calculate_user_level(user_id: str, total_investment: float) -> int:
     
     # Check each package from highest to lowest
     for pkg in packages:
-        # Check investment requirement
-        if total_investment < pkg.get("min_investment", 0):
+        # Check investment requirement using STAKED amount (active stakes)
+        if staked_amount < pkg.get("min_investment", 0):
             continue
         
         # Check referral requirements for each level
