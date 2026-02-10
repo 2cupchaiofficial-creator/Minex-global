@@ -106,9 +106,29 @@ const AdminUsers = () => {
 
   return (
     <div className="space-y-6 md:space-y-8" data-testid="admin-users">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-white mb-2" data-testid="users-title">Manage Users</h1>
-        <p className="text-gray-400 text-sm md:text-base">View and manage all platform users</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-2" data-testid="users-title">Manage Users</h1>
+          <p className="text-gray-400 text-sm md:text-base">View and manage all platform users</p>
+        </div>
+        <button
+          onClick={handleRecalculateLevels}
+          disabled={recalculating}
+          className="flex items-center gap-2 px-4 py-2.5 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-lg transition min-h-[44px] disabled:opacity-50 w-full sm:w-auto justify-center"
+          data-testid="recalculate-levels-btn"
+        >
+          {recalculating ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span className="text-sm font-medium">Recalculating...</span>
+            </>
+          ) : (
+            <>
+              <RefreshCw className="w-4 h-4" />
+              <span className="text-sm font-medium">Fix User Levels</span>
+            </>
+          )}
+        </button>
       </div>
 
       <div className="glass rounded-xl md:rounded-2xl p-4 md:p-6">
