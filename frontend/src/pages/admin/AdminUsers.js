@@ -62,6 +62,34 @@ const AdminUsers = () => {
     }
   };
 
+  const handleRecalculateLevels = async () => {
+    if (!window.confirm('This will recalculate ALL user levels based on their active staking amount. Continue?')) {
+      return;
+    }
+
+    setRecalculating(true);
+    try {
+      const response = await adminAPI.recalculateAllLevels();
+      const { total_users_checked, levels_changed, changes } = response.data;
+      
+      if (levels_changed > 0) {
+        toast.success(`Levels recalculated! ${levels_changed} users updated out of ${total_users_checked}.`);
+        // Show details of changes
+        changes.forEach(change => {
+          toast.info(`${change.email}: Level ${change.old_level} → ${change.new_level}`);
+        });
+        // Reload users to show updated levels
+        loadUsers();
+      } else {
+        toast.success(`All ${total_users_checked} users have correct levels. No changes needed.`);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to recalculate levels');
+    } finally {
+      setRecalculating(false);
+    }
+  };
+
   const filteredUsers = users.filter(user => 
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
