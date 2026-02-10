@@ -1376,6 +1376,72 @@ async def get_all_users(admin: User = Depends(get_admin_user)):
     users = await db.users.find({}, {"_id": 0, "password_hash": 0}).sort("created_at", -1).to_list(1000)
     return users
 
+@api_router.post("/admin/recalculate-all-levels")
+async def recalculate_all_user_levels(admin: User = Depends(get_admin_user)):
+    """
+    CRITICAL FIX: Recalculate all user levels based on STAKED_AMOUNT (active stakes)
+    instead of total_investment (historical).
+    
+    This endpoint will:
+    1. Get all non-admin users
+    2. Recalculate their level based on staked_amount
+    3. Update if level changed
+    4. Return a report of changes
+    """
+    users = await db.users.find({"role": {"$ne": "ADMIN"}}, {"_id": 0}).to_list(10000)
+    
+    changes = []
+    total_users = len(users)
+    levels_changed = 0
+    
+    for user in users:
+        user_id = user.get("user_id")
+        current_level = user.get("level", 1)
+        staked_amount = user.get("staked_amount", 0)
+        total_investment = user.get("total_investment", 0)
+        
+        # Calculate correct level based on staked_amount
+        correct_level = await calculate_user_level(user_id, staked_amount)
+        
+        if correct_level != current_level:
+            # Update user level
+            await db.users.update_one(
+                {"user_id": user_id},
+                {"$set": {"level": correct_level}}
+            )
+            
+            changes.append({
+                "user_id": user_id,
+                "email": user.get("email"),
+                "full_name": user.get("full_name"),
+                "old_level": current_level,
+                "new_level": correct_level,
+                "staked_amount": staked_amount,
+                "total_investment": total_investment,
+                "reason": f"Level corrected: staked_amount ${staked_amount} (was using total_investment ${total_investment})"
+            })
+            levels_changed += 1
+            logger.info(f"Level corrected for {user.get('email')}: {current_level} -> {correct_level} (staked: ${staked_amount})")
+    
+    # Log this operation
+    await db.system_logs.insert_one({
+        "log_id": str(uuid.uuid4()),
+        "type": "LEVEL_RECALCULATION",
+        "admin_id": admin.user_id,
+        "admin_email": admin.email,
+        "total_users_checked": total_users,
+        "levels_changed": levels_changed,
+        "changes": changes,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {
+        "message": "Level recalculation complete",
+        "total_users_checked": total_users,
+        "levels_changed": levels_changed,
+        "changes": changes
+    }
+
 @api_router.post("/admin/users/{user_id}/impersonate")
 async def impersonate_user(user_id: str, admin: User = Depends(get_admin_user)):
     """
