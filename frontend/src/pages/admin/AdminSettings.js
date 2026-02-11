@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { adminAPI } from '@/api';
 import { toast } from 'sonner';
-import { Save, Settings as SettingsIcon, Upload, Image, X, Calendar, Calculator, Clock, Play, Mail, DollarSign, Percent } from 'lucide-react';
+import { Save, Settings as SettingsIcon, Upload, Image, X, Calendar, Calculator, Clock, Play, Mail, DollarSign, Percent, AlertTriangle, RefreshCw, Loader2 } from 'lucide-react';
 
 const AdminSettings = () => {
   const [settings, setSettings] = useState({
@@ -25,6 +25,7 @@ const AdminSettings = () => {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [roiLoading, setRoiLoading] = useState(false);
+  const [capitalLoading, setCapitalLoading] = useState(false);
   const [schedulerStatus, setSchedulerStatus] = useState(null);
   const [emailLogs, setEmailLogs] = useState([]);
   const [activeQrUpload, setActiveQrUpload] = useState(null); // 'trc20' or 'bep20'
