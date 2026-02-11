@@ -212,7 +212,7 @@ const AdminUsers = () => {
                         Level {user.level}
                       </span>
                     </td>
-                    <td className="py-4 px-4 text-white font-mono font-bold">{formatCurrency(user.wallet_balance || 0)}</td>
+                    <td className="py-4 px-4 text-white font-mono font-bold">{formatCurrency(user.deposited_capital || 0)}</td>
                     <td className="py-4 px-4 text-green-400 font-mono font-bold">{formatCurrency(user.roi_balance || 0)}</td>
                     <td className="py-4 px-4 text-gray-400 text-sm">
                       {user.direct_referrals?.length || 0}D / {user.indirect_referrals?.length || 0}I
