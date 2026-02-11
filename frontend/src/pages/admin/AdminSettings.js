@@ -152,6 +152,54 @@ const AdminSettings = () => {
     }
   };
 
+  const handleProcessExpiredStakes = async () => {
+    setCapitalLoading(true);
+    try {
+      const response = await adminAPI.processExpiredStakes();
+      const { stakes_processed, total_capital_returned, errors } = response.data;
+      if (stakes_processed > 0) {
+        toast.success(`Processed ${stakes_processed} stakes. Total capital returned: $${total_capital_returned.toFixed(2)}`);
+      } else {
+        toast.info('No expired stakes to process');
+      }
+      if (errors && errors.length > 0) {
+        toast.error(`Errors: ${errors.join(', ')}`);
+      }
+    } catch (error) {
+      toast.error('Failed to process expired stakes');
+    } finally {
+      setCapitalLoading(false);
+    }
+  };
+
+  const handleForceReleaseCapital = async () => {
+    if (!window.confirm('⚠️ EMERGENCY ACTION: This will force release capital for ALL expired staking packages. Continue?')) {
+      return;
+    }
+    
+    setCapitalLoading(true);
+    try {
+      const response = await adminAPI.forceReleaseCapital();
+      const { stakes_processed, total_capital_released, skipped_already_had_txn, errors } = response.data;
+      
+      if (stakes_processed > 0) {
+        toast.success(`✅ Released capital for ${stakes_processed} stakes. Total: $${total_capital_released.toFixed(2)}`);
+      } else if (skipped_already_had_txn > 0) {
+        toast.info(`No new capital to release. ${skipped_already_had_txn} stakes already had capital returned.`);
+      } else {
+        toast.info('No expired stakes found to process');
+      }
+      
+      if (errors && errors.length > 0) {
+        errors.forEach(err => toast.error(err));
+      }
+    } catch (error) {
+      toast.error('Failed to force release capital');
+    } finally {
+      setCapitalLoading(false);
+    }
+  };
+
   const toggleWithdrawalDate = (day) => {
     const dates = settings.withdrawal_dates || [];
     if (dates.includes(day)) {
