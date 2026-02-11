@@ -112,6 +112,11 @@ export const adminAPI = {
   // ROI Scheduler
   getROISchedulerStatus: () => api.get('/admin/roi-scheduler/status'),
   setROIScheduleTime: (hour, minute) => api.post('/admin/roi-scheduler/set-time', null, { params: { hour, minute } }),
+  processExpiredStakes: () => api.post('/admin/roi-scheduler/process-expired'),
+  distributeROINow: () => api.post('/admin/roi-scheduler/distribute-now'),
+  // Capital Release
+  getPendingCapitalStakes: () => api.get('/admin/stakes/pending-capital'),
+  forceReleaseCapital: () => api.post('/admin/stakes/force-release-capital'),
   // Logs
   getEmailLogs: () => api.get('/admin/email-logs'),
   getSystemLogs: () => api.get('/admin/system-logs'),
