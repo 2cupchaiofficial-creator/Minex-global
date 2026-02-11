@@ -631,6 +631,54 @@ const AdminSettings = () => {
           </p>
         </div>
 
+        {/* Capital Release - Emergency Section */}
+        <div className="glass rounded-xl p-5 md:p-6 border border-red-500/30 bg-red-500/5">
+          <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-red-400" />
+            <span className="text-red-400">Staking Capital Release</span>
+          </h2>
+          
+          <p className="text-sm text-gray-400 mb-4">
+            Process expired staking packages and release capital back to users' cash wallets.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              type="button"
+              onClick={handleProcessExpiredStakes}
+              disabled={capitalLoading}
+              className="flex items-center justify-center gap-2 px-4 py-3 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-lg transition min-h-[48px]"
+              data-testid="process-expired-btn"
+            >
+              {capitalLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <RefreshCw className="w-4 h-4" />
+              )}
+              <span className="font-medium">Process Expired Stakes</span>
+            </button>
+            
+            <button
+              type="button"
+              onClick={handleForceReleaseCapital}
+              disabled={capitalLoading}
+              className="flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg transition min-h-[48px]"
+              data-testid="force-release-btn"
+            >
+              {capitalLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <AlertTriangle className="w-4 h-4" />
+              )}
+              <span className="font-medium">Force Release ALL Capital</span>
+            </button>
+          </div>
+          
+          <p className="text-xs text-red-400/70 mt-3">
+            ⚠️ Use "Force Release ALL Capital" if packages show as completed but capital was not returned to users.
+          </p>
+        </div>
+
         {/* Email Logs */}
         <div className="glass rounded-xl p-5 md:p-6">
           <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
