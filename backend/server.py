@@ -746,10 +746,10 @@ async def get_dashboard(current_user: User = Depends(get_current_user)):
             "level_6_required": next_package.get("level_6_required", 0)
         }
         
-        # Calculate progress towards next level using WALLET BALANCE (deposited amount)
+        # Calculate progress towards next level using DEPOSITED CAPITAL (original deposits - withdrawals, excludes ROI)
         promotion_progress = {
-            "investment_met": current_user.wallet_balance >= next_package.get("min_investment", 0),
-            "investment_current": current_user.wallet_balance,  # Show wallet balance for level progress
+            "investment_met": current_user.deposited_capital >= next_package.get("min_investment", 0),
+            "investment_current": current_user.deposited_capital,  # Show deposited capital for level progress
             "investment_required": next_package.get("min_investment", 0),
             "direct_met": team_counts["level_1"] >= next_package.get("direct_required", 0),
             "direct_current": team_counts["level_1"],
