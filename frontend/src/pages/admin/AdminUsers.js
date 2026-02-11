@@ -64,7 +64,7 @@ const AdminUsers = () => {
   };
 
   const handleRecalculateLevels = async () => {
-    if (!window.confirm('This will recalculate ALL user levels based on their active staking amount. Continue?')) {
+    if (!window.confirm('This will recalculate ALL user levels based on their deposited capital. Continue?')) {
       return;
     }
 
@@ -88,6 +88,24 @@ const AdminUsers = () => {
       toast.error(error.response?.data?.detail || 'Failed to recalculate levels');
     } finally {
       setRecalculating(false);
+    }
+  };
+
+  const handleMigrateCapital = async () => {
+    if (!window.confirm('This will calculate deposited_capital for all users from their transaction history. Run this FIRST before "Fix User Levels". Continue?')) {
+      return;
+    }
+
+    setMigrating(true);
+    try {
+      const response = await adminAPI.migrateDepositedCapital();
+      const { total_users, users_updated } = response.data;
+      toast.success(`Migration complete! ${users_updated} users updated.`);
+      loadUsers();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to migrate deposited capital');
+    } finally {
+      setMigrating(false);
     }
   };
 
