@@ -1164,9 +1164,9 @@ async def create_staking(staking_data: StakingCreate, current_user: User = Depen
     else:
         await distribute_commissions(staking_doc["staking_id"], current_user.user_id, staking_data.amount)
     
-    # Check for level upgrade using WALLET BALANCE (not staked_amount)
+    # Check for level upgrade using DEPOSITED CAPITAL
     user = await db.users.find_one({"user_id": current_user.user_id}, {"_id": 0})
-    new_level = await calculate_user_level(current_user.user_id, user["wallet_balance"])
+    new_level = await calculate_user_level(current_user.user_id, user.get("deposited_capital", 0))
     if new_level > current_user.level:
         await db.users.update_one(
             {"user_id": current_user.user_id},
