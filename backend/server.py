@@ -1544,19 +1544,23 @@ async def approve_deposit(deposit_id: str, admin: User = Depends(get_admin_user)
     amount = deposit.get("net_amount", deposit["amount"])
     user_id = deposit["user_id"]
     
+    # Update wallet_balance AND deposited_capital (for level calculation)
     await db.users.update_one(
         {"user_id": user_id},
-        {"$inc": {"wallet_balance": amount}}
+        {"$inc": {
+            "wallet_balance": amount,
+            "deposited_capital": amount  # Track original deposit for level calculation
+        }}
     )
     
     # Distribute promotion rewards if active promotion exists
     promotion_rewards = await distribute_promotion_rewards(deposit_id, user_id, amount)
     
-    # Recalculate user level after deposit (may upgrade level if balance meets minimum)
+    # Recalculate user level after deposit (may upgrade level if deposited_capital meets minimum)
     user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
     if user:
         old_level = user.get("level", 1)
-        new_level = await calculate_user_level(user_id, user["wallet_balance"])
+        new_level = await calculate_user_level(user_id, user.get("deposited_capital", 0))
         if new_level != old_level:
             await db.users.update_one(
                 {"user_id": user_id},
