@@ -1797,6 +1797,190 @@ async def get_roi_scheduler_status(admin: User = Depends(get_admin_user)):
     """Get ROI scheduler status"""
     return roi_scheduler.get_status()
 
+@api_router.get("/admin/stakes/pending-capital")
+async def get_pending_capital_stakes(admin: User = Depends(get_admin_user)):
+    """Get all stakes that should have capital released but haven't been processed"""
+    now = datetime.now(timezone.utc)
+    
+    # Find ALL stakes that are expired but capital not returned
+    all_stakes = await db.staking.find({
+        "capital_returned": {"$ne": True}
+    }).to_list(10000)
+    
+    pending_stakes = []
+    for stake in all_stakes:
+        stake_id = stake.get("staking_id") or stake.get("staking_entry_id")
+        end_date_str = stake.get("end_date", "")
+        status = stake.get("status", "")
+        
+        # Parse end date
+        is_expired = False
+        if end_date_str:
+            try:
+                if isinstance(end_date_str, str):
+                    end_date = datetime.fromisoformat(end_date_str.replace("Z", "+00:00"))
+                else:
+                    end_date = end_date_str
+                is_expired = now >= end_date
+            except:
+                pass
+        
+        if status == "completed":
+            is_expired = True
+        
+        if is_expired:
+            # Get user info
+            user = await db.users.find_one({"user_id": stake.get("user_id")}, {"_id": 0, "email": 1, "full_name": 1})
+            
+            # Check if capital transaction exists
+            existing_txn = await db.transactions.find_one({
+                "staking_id": stake_id,
+                "type": "capital_return"
+            })
+            
+            pending_stakes.append({
+                "staking_id": stake_id,
+                "user_id": stake.get("user_id"),
+                "user_email": user.get("email") if user else "Unknown",
+                "user_name": user.get("full_name") if user else "Unknown",
+                "amount": stake.get("amount", 0),
+                "start_date": stake.get("start_date"),
+                "end_date": stake.get("end_date"),
+                "status": status,
+                "capital_returned": stake.get("capital_returned", False),
+                "has_capital_txn": existing_txn is not None
+            })
+    
+    return {
+        "total_pending": len(pending_stakes),
+        "stakes": pending_stakes
+    }
+
+@api_router.post("/admin/stakes/force-release-capital")
+async def force_release_all_capital(admin: User = Depends(get_admin_user)):
+    """
+    EMERGENCY: Force release capital for ALL expired stakes.
+    This will process every stake that has expired but capital not returned.
+    """
+    now = datetime.now(timezone.utc)
+    
+    # Find ALL stakes that are expired but capital not returned
+    all_stakes = await db.staking.find({
+        "capital_returned": {"$ne": True}
+    }).to_list(10000)
+    
+    processed = 0
+    total_capital_released = 0.0
+    errors = []
+    skipped_has_txn = 0
+    
+    for stake in all_stakes:
+        try:
+            stake_id = stake.get("staking_id") or stake.get("staking_entry_id")
+            user_id = stake.get("user_id")
+            amount = stake.get("amount", 0)
+            end_date_str = stake.get("end_date", "")
+            status = stake.get("status", "")
+            
+            if not user_id or amount <= 0:
+                continue
+            
+            # Parse end date
+            is_expired = False
+            if end_date_str:
+                try:
+                    if isinstance(end_date_str, str):
+                        end_date = datetime.fromisoformat(end_date_str.replace("Z", "+00:00"))
+                    else:
+                        end_date = end_date_str
+                    is_expired = now >= end_date
+                except:
+                    pass
+            
+            if status == "completed":
+                is_expired = True
+            
+            if is_expired:
+                # Check if capital transaction already exists
+                existing_txn = await db.transactions.find_one({
+                    "staking_id": stake_id,
+                    "type": "capital_return"
+                })
+                
+                if existing_txn:
+                    # Just mark as completed
+                    await db.staking.update_one(
+                        {"staking_id": stake_id},
+                        {"$set": {"status": "completed", "capital_returned": True}}
+                    )
+                    skipped_has_txn += 1
+                    continue
+                
+                # Get user
+                user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+                if not user:
+                    errors.append(f"User {user_id} not found for stake {stake_id}")
+                    continue
+                
+                # Mark stake as completed
+                await db.staking.update_one(
+                    {"staking_id": stake_id},
+                    {"$set": {
+                        "status": "completed",
+                        "capital_returned": True,
+                        "completed_at": now.isoformat()
+                    }}
+                )
+                
+                # Transfer capital to wallet_balance and reduce staked_amount
+                await db.users.update_one(
+                    {"user_id": user_id},
+                    {"$inc": {
+                        "wallet_balance": amount,
+                        "staked_amount": -amount
+                    }}
+                )
+                
+                # Create transaction record
+                capital_return_doc = {
+                    "transaction_id": str(uuid.uuid4()),
+                    "user_id": user_id,
+                    "staking_id": stake_id,
+                    "type": "capital_return",
+                    "amount": amount,
+                    "description": "Staking package completed - Capital returned to cash wallet (admin force release)",
+                    "created_at": now.isoformat()
+                }
+                await db.transactions.insert_one(capital_return_doc)
+                
+                processed += 1
+                total_capital_released += amount
+                logger.info(f"Force released capital ${amount} for stake {stake_id} to user {user.get('email', user_id)}")
+                
+        except Exception as e:
+            errors.append(f"Error processing stake {stake.get('staking_id', 'unknown')}: {str(e)}")
+    
+    # Log this operation
+    await db.system_logs.insert_one({
+        "log_id": str(uuid.uuid4()),
+        "type": "FORCE_CAPITAL_RELEASE",
+        "admin_id": admin.user_id,
+        "admin_email": admin.email,
+        "stakes_processed": processed,
+        "total_capital_released": total_capital_released,
+        "skipped_has_txn": skipped_has_txn,
+        "errors": errors,
+        "created_at": now.isoformat()
+    })
+    
+    return {
+        "message": "Force capital release complete",
+        "stakes_processed": processed,
+        "total_capital_released": total_capital_released,
+        "skipped_already_had_txn": skipped_has_txn,
+        "errors": errors
+    }
+
 # Process expired stakes manually
 @api_router.post("/admin/roi-scheduler/process-expired")
 async def process_expired_stakes(admin: User = Depends(get_admin_user)):
