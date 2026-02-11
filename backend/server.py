@@ -1403,14 +1403,14 @@ async def get_all_users(admin: User = Depends(get_admin_user)):
 @api_router.post("/admin/recalculate-all-levels")
 async def recalculate_all_user_levels(admin: User = Depends(get_admin_user)):
     """
-    CRITICAL FIX: Recalculate all user levels based on WALLET_BALANCE (deposited amount)
+    Recalculate all user levels based on DEPOSITED_CAPITAL
     
     Level is determined by:
-    1. Wallet balance >= minimum investment for that level
+    1. Deposited capital (original deposits minus withdrawals, excludes ROI)
     2. Referral requirements met
     
-    User keeps level as long as wallet balance meets requirement.
-    User drops level if they withdraw and balance goes below minimum.
+    User keeps level as long as deposited_capital meets requirement.
+    User drops level if they withdraw capital below minimum.
     """
     users = await db.users.find({"role": {"$ne": "ADMIN"}}, {"_id": 0}).to_list(10000)
     
@@ -1421,11 +1421,10 @@ async def recalculate_all_user_levels(admin: User = Depends(get_admin_user)):
     for user in users:
         user_id = user.get("user_id")
         current_level = user.get("level", 1)
-        wallet_balance = user.get("wallet_balance", 0)
-        total_investment = user.get("total_investment", 0)
+        deposited_capital = user.get("deposited_capital", 0)
         
-        # Calculate correct level based on wallet_balance (deposited amount)
-        correct_level = await calculate_user_level(user_id, wallet_balance)
+        # Calculate correct level based on deposited_capital
+        correct_level = await calculate_user_level(user_id, deposited_capital)
         
         if correct_level != current_level:
             # Update user level
@@ -1440,12 +1439,11 @@ async def recalculate_all_user_levels(admin: User = Depends(get_admin_user)):
                 "full_name": user.get("full_name"),
                 "old_level": current_level,
                 "new_level": correct_level,
-                "wallet_balance": wallet_balance,
-                "total_investment": total_investment,
-                "reason": f"Level corrected: wallet_balance ${wallet_balance} (historical total ${total_investment})"
+                "deposited_capital": deposited_capital,
+                "reason": f"Level corrected: deposited_capital ${deposited_capital}"
             })
             levels_changed += 1
-            logger.info(f"Level corrected for {user.get('email')}: {current_level} -> {correct_level} (wallet: ${wallet_balance})")
+            logger.info(f"Level corrected for {user.get('email')}: {current_level} -> {correct_level} (deposited_capital: ${deposited_capital})")
     
     # Log this operation
     await db.system_logs.insert_one({
