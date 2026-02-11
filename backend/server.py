@@ -1464,6 +1464,97 @@ async def recalculate_all_user_levels(admin: User = Depends(get_admin_user)):
         "changes": changes
     }
 
+@api_router.post("/admin/migrate-deposited-capital")
+async def migrate_deposited_capital(admin: User = Depends(get_admin_user)):
+    """
+    MIGRATION: Calculate deposited_capital for all existing users from transaction history.
+    
+    deposited_capital = SUM of approved deposits - SUM of approved withdrawals (capital portion only)
+    
+    This is a one-time migration for existing users.
+    """
+    users = await db.users.find({"role": {"$ne": "ADMIN"}}, {"_id": 0}).to_list(10000)
+    
+    migrations = []
+    total_users = len(users)
+    users_updated = 0
+    
+    for user in users:
+        user_id = user.get("user_id")
+        
+        # Calculate total approved deposits
+        deposits = await db.deposits.find({
+            "user_id": user_id,
+            "status": "approved"
+        }, {"_id": 0}).to_list(10000)
+        
+        total_deposits = sum(d.get("net_amount", d.get("amount", 0)) for d in deposits)
+        
+        # Calculate total approved withdrawals (only capital portion, estimate)
+        withdrawals = await db.withdrawals.find({
+            "user_id": user_id,
+            "status": "approved"
+        }, {"_id": 0}).to_list(10000)
+        
+        total_withdrawals = sum(w.get("amount", 0) for w in withdrawals)
+        
+        # deposited_capital = deposits - withdrawals (but can't go below 0)
+        deposited_capital = max(0, total_deposits - total_withdrawals)
+        
+        # Also consider: if user has staked + wallet balance, their deposited_capital
+        # should be at least the sum of (wallet_balance excluding ROI)
+        current_wallet = user.get("wallet_balance", 0)
+        current_roi = user.get("roi_balance", 0)
+        current_commission = user.get("commission_balance", 0)
+        current_staked = user.get("staked_amount", 0)
+        
+        # Alternative calculation: capital in system = wallet - roi - commission + staked
+        capital_in_system = max(0, current_wallet - current_roi - current_commission + current_staked)
+        
+        # Use the higher of the two calculations as deposited_capital
+        final_deposited_capital = max(deposited_capital, capital_in_system)
+        
+        old_deposited_capital = user.get("deposited_capital", 0)
+        
+        # Update user
+        await db.users.update_one(
+            {"user_id": user_id},
+            {"$set": {"deposited_capital": final_deposited_capital}}
+        )
+        
+        migrations.append({
+            "user_id": user_id,
+            "email": user.get("email"),
+            "full_name": user.get("full_name"),
+            "old_deposited_capital": old_deposited_capital,
+            "new_deposited_capital": final_deposited_capital,
+            "calculation": {
+                "total_deposits": total_deposits,
+                "total_withdrawals": total_withdrawals,
+                "capital_in_system": capital_in_system
+            }
+        })
+        users_updated += 1
+        logger.info(f"Migrated deposited_capital for {user.get('email')}: ${final_deposited_capital}")
+    
+    # Log this operation
+    await db.system_logs.insert_one({
+        "log_id": str(uuid.uuid4()),
+        "type": "DEPOSITED_CAPITAL_MIGRATION",
+        "admin_id": admin.user_id,
+        "admin_email": admin.email,
+        "total_users": total_users,
+        "users_updated": users_updated,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {
+        "message": "Deposited capital migration complete",
+        "total_users": total_users,
+        "users_updated": users_updated,
+        "migrations": migrations
+    }
+
 @api_router.post("/admin/users/{user_id}/impersonate")
 async def impersonate_user(user_id: str, admin: User = Depends(get_admin_user)):
     """
