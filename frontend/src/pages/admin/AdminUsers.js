@@ -280,10 +280,10 @@ const AdminUsers = () => {
                   <div className="bg-black/20 rounded-lg p-3">
                     <div className="flex items-center gap-2 text-gray-400 text-xs mb-1">
                       <TrendingUp className="w-3 h-3" />
-                      Wallet Balance
+                      Deposited Capital
                     </div>
                     <div className="text-white font-mono font-bold text-sm">
-                      {formatCurrency(user.wallet_balance || 0)}
+                      {formatCurrency(user.deposited_capital || 0)}
                     </div>
                   </div>
                   <div className="bg-black/20 rounded-lg p-3">
