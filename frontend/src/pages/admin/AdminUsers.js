@@ -130,24 +130,36 @@ const AdminUsers = () => {
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2" data-testid="users-title">Manage Users</h1>
           <p className="text-gray-400 text-sm md:text-base">View and manage all platform users</p>
         </div>
-        <button
-          onClick={handleRecalculateLevels}
-          disabled={recalculating}
-          className="flex items-center gap-2 px-4 py-2.5 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-lg transition min-h-[44px] disabled:opacity-50 w-full sm:w-auto justify-center"
-          data-testid="recalculate-levels-btn"
-        >
-          {recalculating ? (
-            <>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <button
+            onClick={handleMigrateCapital}
+            disabled={migrating}
+            className="flex items-center gap-2 px-4 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg transition min-h-[44px] disabled:opacity-50 justify-center"
+            data-testid="migrate-capital-btn"
+            title="Step 1: Calculate deposited capital from history"
+          >
+            {migrating ? (
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-sm font-medium">Recalculating...</span>
-            </>
-          ) : (
-            <>
+            ) : (
+              <Database className="w-4 h-4" />
+            )}
+            <span className="text-sm font-medium">1. Migrate Capital</span>
+          </button>
+          <button
+            onClick={handleRecalculateLevels}
+            disabled={recalculating}
+            className="flex items-center gap-2 px-4 py-2.5 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-lg transition min-h-[44px] disabled:opacity-50 justify-center"
+            data-testid="recalculate-levels-btn"
+            title="Step 2: Fix user levels based on deposited capital"
+          >
+            {recalculating ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
               <RefreshCw className="w-4 h-4" />
-              <span className="text-sm font-medium">Fix User Levels</span>
-            </>
-          )}
-        </button>
+            )}
+            <span className="text-sm font-medium">2. Fix Levels</span>
+          </button>
+        </div>
       </div>
 
       <div className="glass rounded-xl md:rounded-2xl p-4 md:p-6">
