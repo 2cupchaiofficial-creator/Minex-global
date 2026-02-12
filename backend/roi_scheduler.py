@@ -568,8 +568,15 @@ class ROIScheduler:
         if not self.is_running:
             self.is_running = True
             self._calculate_next_run()
+            
+            # Start ROI distribution loop (runs at scheduled time)
             asyncio.create_task(self._scheduler_loop())
+            
+            # Start capital release loop (checks every 5 minutes)
+            asyncio.create_task(self._capital_release_loop())
+            
             logger.info(f"ROI Scheduler started. Will run daily at {self.run_hour:02d}:{self.run_minute:02d} UTC")
+            logger.info("Capital release loop started - checking every 5 minutes for expired packages")
     
     def stop(self):
         """Stop the scheduler"""
