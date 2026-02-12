@@ -525,7 +525,14 @@ class ROIScheduler:
                 
                 if self.next_run and now >= self.next_run:
                     logger.info("Scheduled ROI distribution triggered")
+                    
+                    # Step 1: Distribute daily ROI
                     await self.distribute_daily_roi()
+                    
+                    # Step 2: AUTOMATICALLY process expired stakes and release capital
+                    logger.info("Automatically processing expired stakes for capital release...")
+                    expired_result = await self.process_expired_stakes()
+                    logger.info(f"Expired stakes result: {expired_result}")
                 
                 # Sleep for 1 minute before checking again
                 await asyncio.sleep(60)
