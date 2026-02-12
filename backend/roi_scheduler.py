@@ -529,8 +529,8 @@ class ROIScheduler:
                     # Step 1: Distribute daily ROI
                     await self.distribute_daily_roi()
                     
-                    # Step 2: AUTOMATICALLY process expired stakes and release capital
-                    logger.info("Automatically processing expired stakes for capital release...")
+                    # Step 2: Process expired stakes and release capital
+                    logger.info("Processing expired stakes for capital release...")
                     expired_result = await self.process_expired_stakes()
                     logger.info(f"Expired stakes result: {expired_result}")
                 
@@ -540,6 +540,28 @@ class ROIScheduler:
             except Exception as e:
                 logger.error(f"Error in ROI scheduler loop: {e}")
                 await asyncio.sleep(60)
+    
+    async def _capital_release_loop(self):
+        """
+        Background loop that checks for expired stakes every 5 minutes.
+        This ensures capital is released promptly when packages complete.
+        """
+        logger.info("Capital release loop started - checking every 5 minutes")
+        
+        while self.is_running:
+            try:
+                # Process expired stakes
+                result = await self.process_expired_stakes()
+                
+                if result.get("stakes_processed", 0) > 0:
+                    logger.info(f"Capital release: {result['stakes_processed']} stakes processed, ${result['total_capital_returned']} returned")
+                
+                # Check every 5 minutes
+                await asyncio.sleep(300)  # 5 minutes
+                
+            except Exception as e:
+                logger.error(f"Error in capital release loop: {e}")
+                await asyncio.sleep(300)
     
     def start(self):
         """Start the scheduler"""
