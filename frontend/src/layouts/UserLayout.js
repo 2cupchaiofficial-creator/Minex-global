@@ -56,9 +56,9 @@ const UserLayout = ({ children }) => {
             <div className="hidden md:flex items-center gap-3 glass rounded-lg px-4 py-2">
               <Wallet className="w-5 h-5 text-blue-400" />
               <div>
-                <div className="text-xs text-gray-400">Balance</div>
+                <div className="text-xs text-gray-400">Fund Wallet</div>
                 <div className="text-sm text-white font-mono font-bold" data-testid="header-balance">
-                  ${user?.wallet_balance?.toFixed(2) || '0.00'}
+                  ${user?.fund_balance?.toFixed(2) || '0.00'}
                 </div>
               </div>
             </div>
