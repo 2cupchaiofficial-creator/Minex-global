@@ -84,6 +84,7 @@ export const adminAPI = {
   recalculateAllLevels: () => api.post('/admin/recalculate-all-levels'),
   migrateDepositedCapital: () => api.post('/admin/migrate-deposited-capital'),
   migratePromoRewards: () => api.post('/admin/migrate-promo-rewards-to-transactions'),
+  migrateFundBalance: () => api.post('/admin/migrate-fund-balance'),
   getDeposits: () => api.get('/admin/deposits'),
   approveDeposit: (depositId) => api.post(`/admin/deposits/${depositId}/approve`),
   rejectDeposit: (depositId, reason) => api.post(`/admin/deposits/${depositId}/reject`, null, { params: { reason } }),
