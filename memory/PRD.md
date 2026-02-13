@@ -360,3 +360,9 @@ Build a production-ready crypto investment platform called "MINEX GLOBAL" with:
 - Deposit/withdrawal flows
 - Automatic ROI scheduler
 - Email notification system
+
+### Dec 21, 2026 (Dashboard Cleanup)
+- Removed "Total Investment" from user dashboard, replaced with "Deposited Capital"
+- Added promotion reward transaction types to Transactions page filter
+- Added "Migrate Rewards to History" button on Admin Promotions page
+- All tests passing (100% backend, 100% frontend)
