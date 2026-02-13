@@ -372,6 +372,23 @@ Build a production-ready crypto investment platform called "MINEX GLOBAL" with:
 - Updated admin packages form with "Profit Share" labels
 - Configured SendGrid API with fallback mechanism
 
+### Dec 21, 2026 (Fund Wallet Implementation)
+- Implemented Fund Wallet separation from Cash Wallet:
+  - Top-right header now shows "Fund Wallet" (deposit funds for staking)
+  - Fund Wallet decreases when user stakes
+  - Cash Wallet shows ROI + Commissions only
+- Added `fund_balance` field to User model
+- Added migration endpoint: POST /api/admin/migrate-fund-balance
+- Added "Migrate Fund Balances" button in Admin Settings
+- Verified promo rewards are correctly saved to transactions collection
+- Note: Promo rewards only appear when deposits are approved during active promotion
+
+### Dec 21, 2026 (Dashboard Cleanup)
+- Removed "Total Investment" from user dashboard, replaced with "Deposited Capital"
+- Added promotion reward transaction types to Transactions page filter
+- Added "Migrate Rewards to History" button on Admin Promotions page
+- All tests passing (100% backend, 100% frontend)
+
 ### Previous
 - Initial platform setup
 - User authentication and registration
