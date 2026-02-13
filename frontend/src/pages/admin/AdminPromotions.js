@@ -20,6 +20,7 @@ const formatDateTime = (dateStr) => {
 const AdminPromotions = () => {
   const [promotions, setPromotions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [migrateLoading, setMigrateLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingPromotion, setEditingPromotion] = useState(null);
   const [showRewards, setShowRewards] = useState(null);
