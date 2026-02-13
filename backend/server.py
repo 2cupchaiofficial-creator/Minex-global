@@ -1642,6 +1642,70 @@ async def migrate_promo_rewards_to_transactions(admin: User = Depends(get_admin_
         "skipped_already_exist": skipped
     }
 
+@api_router.post("/admin/migrate-fund-balance")
+async def migrate_fund_balance(admin: User = Depends(get_admin_user)):
+    """
+    MIGRATION: Calculate fund_balance for existing users.
+    fund_balance = approved deposits - staked amount
+    This represents the deposit funds available for staking.
+    """
+    users = await db.users.find({}, {"_id": 0}).to_list(10000)
+    
+    migrations = []
+    users_updated = 0
+    
+    for user in users:
+        user_id = user.get("user_id")
+        
+        # Calculate total approved deposits
+        total_deposits = 0
+        deposits = await db.deposits.find({
+            "user_id": user_id,
+            "status": DepositStatus.APPROVED
+        }, {"_id": 0}).to_list(1000)
+        
+        for dep in deposits:
+            total_deposits += dep.get("net_amount", dep.get("amount", 0))
+        
+        # Get current staked amount
+        staked_amount = user.get("staked_amount", 0)
+        
+        # fund_balance = deposits - staked (can't be negative)
+        fund_balance = max(0, total_deposits - staked_amount)
+        
+        old_fund_balance = user.get("fund_balance", 0)
+        
+        if fund_balance != old_fund_balance:
+            await db.users.update_one(
+                {"user_id": user_id},
+                {"$set": {"fund_balance": fund_balance}}
+            )
+            users_updated += 1
+            migrations.append({
+                "email": user.get("email"),
+                "old_fund_balance": old_fund_balance,
+                "new_fund_balance": fund_balance,
+                "total_deposits": total_deposits,
+                "staked_amount": staked_amount
+            })
+            logger.info(f"Migrated fund_balance for {user.get('email')}: ${fund_balance}")
+    
+    # Log operation
+    await db.system_logs.insert_one({
+        "log_id": str(uuid.uuid4()),
+        "type": "FUND_BALANCE_MIGRATION",
+        "admin_id": admin.user_id,
+        "admin_email": admin.email,
+        "users_updated": users_updated,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {
+        "message": "Fund balance migration complete",
+        "users_updated": users_updated,
+        "migrations": migrations
+    }
+
 @api_router.post("/admin/users/{user_id}/impersonate")
 async def impersonate_user(user_id: str, admin: User = Depends(get_admin_user)):
     """
