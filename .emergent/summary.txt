@@ -1,0 +1,178 @@
+<analysis>**original_problem_statement:**
+The user provided their GitHub repository  and requested to set up the project, install dependencies, and run the build. Following this, the user made a series of requests to add features, improve mobile responsiveness, and fix multiple critical bugs related to the platform's core financial logic.
+
+**PRODUCT REQUIREMENTS:**
+1.  **Deposit/Withdrawal Charges:** Admin can set percentage or fixed charges for transactions.
+2.  **Staking Package Expiration:** When a staking package duration is complete, the principal investment (capital) must automatically be returned to the user's Cash Wallet.
+3.  **Resend Integration:** Use  to send all transactional emails.
+4.  **USDT Network Expansion:** Add support for both TRC-20 and BEP-20 USDT networks.
+5.  **Promotion System:** Create a promotion management system offering instant rewards for self-deposits and direct referral deposits.
+6.  **Withdrawal Limits:** Allow the admin to set minimum and maximum withdrawal amounts.
+7.  **Dashboard UI:** Display active promotions prominently on the user dashboard.
+8.  **Mobile Responsiveness:** The entire application must be fully functional and visually correct on all mobile device sizes.
+9.  **Admin Login as User:** Admins must be able to directly log into a user's account from the admin panel to provide support.
+10. **Website Performance:** Optimize the website for faster loading speeds.
+11. **Bug Fixes:**
+    *   Fix user and admin login failures.
+    *   Resolve a critical live site crash on the  page.
+    *   Eliminate a severe logic bug that resulted in users receiving double their capital back and double ROI payments.
+    *   **Fix a critical level progression bug:** The logic for user level advancement was flawed. It has been corrected to be based on —a new field that tracks only original capital deposits minus withdrawals, explicitly excluding ROI and other earnings.
+    *   **Fix a dashboard loading error** that appeared after a logic update.
+    *   **Fix automatic capital release:** Ensure that capital from expired staking packages is released automatically and reliably without manual intervention.
+12. **UI/Logic Cleanup:**
+    *   Remove the confusing Total Investment metric from the user dashboard and all logic, replacing it with the more accurate Deposited Capital.
+    *   Ensure promotion rewards are logged in the main user transaction history for clarity.
+
+**User's preferred language**: English
+
+**what currently exists?**
+A full-stack crypto investment platform with a React frontend, FastAPI backend, and MongoDB. The application features user/admin authentication, a staking system, deposits/withdrawals, multi-network USDT support, a promotion system, and admin-configurable withdrawal limits. The platform is now fully mobile-responsive.
+
+Key features and fixes from this session include:
+- A completed promotion and withdrawal limits system.
+- A comprehensive mobile responsiveness overhaul.
+- An admin Login as User impersonation feature.
+- A fully automated capital release mechanism that runs every 5 minutes.
+- A series of critical fixes to the user level calculation logic, which is now correctly based on .
+- Admin-accessible tools to perform data migrations and fix level inconsistencies on the live site.
+
+**Last working item**:
+- **Last item agent was working**: Implementing two related cleanup tasks:
+    1.  Removing the  metric from the user dashboard and replacing it with  for clarity.
+    2.  Ensuring promotion rewards are logged to the main  collection so they appear in the user's transaction history, and creating a migration script for past rewards.
+- **Status**: IN PROGRESS
+- **Agent Testing Done**: N
+- **Which testing method agent to use?**: both
+- **User Testing Done**: N
+
+**All Pending/In progress Issue list**:
+- There are no outstanding bugs. The primary focus is completing the in-progress cleanup task.
+
+**In progress Task List**:
+- **Task 1: Finalize Total Investment Removal & Promo Reward Logging (P0)**
+    - **Where to resume**: The agent has written all the necessary code for both the backend and frontend. The next step is to restart the services and begin testing.
+        - **Backend**: Updated  model,  endpoint, and added an admin migration endpoint .
+        - **Frontend**: Replaced Total Investment with Deposited Capital on , updated  to display promo rewards, and added a migration button to the admin panel.
+    - **What will be achieved with this?**: The user dashboard will display the correct capital metric, and promotion rewards will be clearly visible in the user's transaction history, improving transparency.
+    - **Status**: IN PROGRESS
+    - **Should Test frontend/backend/both after fix?**: both
+    - **Blocked on something**: No
+
+**Upcoming and Future Tasks**
+- **Upcoming Tasks (Agent-Identified for Review - P1):**
+    - **Withdrawal Rejection Logic:** Verify that when an admin rejects a withdrawal, the user's balances (including ) are correctly restored.
+    - **Level Downgrade Timing:** Currently, a user's level drops when a withdrawal is *requested*. Confirm with the user if this should happen on *approval* instead.
+    - **Commission Calculation Basis:** Commissions are calculated on the  (after deposit charges). Confirm if this is the intended behavior or if it should be on the gross amount.
+    - **Negative Balance Protection:** Add safeguards to ensure  cannot become a negative value under any circumstance.
+- **Future Tasks:**
+    - **Modularize Backend:** Refactor the monolithic  into smaller, feature-based  files (e.g., , , ) to improve maintainability.
+
+**Completed work in this session**
+- **Feature: Promotion System & Withdrawal Limits:** Completed the full implementation, including frontend UI for admin management and user dashboard display.
+- **Feature: Website Performance Optimization:** Implemented code-splitting in  using  and  to improve initial page load times.
+- **Feature: Mobile Responsiveness:** Overhauled the entire application, fixing table overflows, navigation, forms, and cards to ensure a seamless mobile experience.
+- **Feature: Admin Login as User:** Built a backend endpoint and frontend button allowing admins to securely impersonate users.
+- **Critical Fix: Level Calculation Logic (3 Iterations):** Corrected a severe bug in user level progression. The logic now accurately uses a new  field, which tracks only capital deposits minus withdrawals, excluding ROI.
+- **Critical Fix: Automatic Capital Release:** Fixed the scheduler to automatically process expired stakes every 5 minutes, eliminating the need for manual intervention and resolving stuck capital on the live site.
+- **Admin Tools:** Added several admin-only buttons and endpoints to migrate data and fix inconsistencies on the live site (e.g., Migrate Capital, Fix User Levels, Force Capital Release).
+
+**Earlier issues found/mentioned but not fixed**
+- **Issue 1: CoinGecko API Rate Limiting**
+    - **Debug checklist**: Backend logs show  in .
+    - **Why to solve this issue and what will be achieved with this?**: This prevents any features that might rely on real-time crypto prices from failing. The fix likely involves acquiring and using a CoinGecko API key.
+    - **Should Test frontend/backend/both after fix:** backend
+    - **Is recurring issue?** Y
+
+**Known issue recurrence from previous fork**
+- N/A
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+- **Frontend**: React, Tailwind CSS, Axios, React Router, Craco.
+- **Backend**: FastAPI, Pydantic, Motor (async MongoDB driver), APScheduler.
+- **Database**: MongoDB.
+- **Authentication**: JWT-based authentication.
+- **Asynchronous Tasks**: Background loops managed by  and  for ROI distribution and automatic capital release.
+
+**key DB schema**
+- : 
+- : 
+- : 
+- :  (now includes promotion rewards)
+- : 
+- : (A separate collection for auditing promotion payouts)
+
+**changes in tech stack**
+- No new libraries or technologies were added in this session.
+
+**All files of reference**
+- : Heavily modified for level calculation, impersonation, automatic data recalculation on deposit/withdrawal, and various admin data-fixing endpoints.
+- : Significantly updated to include a separate, continuously running background loop for automatic capital release.
+- : The  model was updated to include  and .  was also updated.
+- : Rewritten to be mobile-responsive and include buttons for Login as User, data migration, and level fixing. Column display was updated to show .
+- : Modified to implement mobile-first design, display the active promotion card, and replace the Total Investment stat with Deposited Capital.
+- : UI added for withdrawal limits and emergency capital release buttons.
+- : Updated to correctly filter and display promotion reward transactions.
+- : Modified to support the Login as User impersonation flow.
+- : Refactored to use  for code-splitting and performance improvement.
+- All admin table pages (, ) were refactored to use a card-based layout on mobile.
+
+**Areas that need refactoring**
+- The main backend file, , is now over 2000 lines and urgently needs to be modularized into separate  files for better organization and maintainability.
+
+**key api endpoints**
+- **New Admin Endpoints:**
+    - : Login as another user.
+    - : Fix all user levels based on current logic.
+    - : One-time script to populate  from transaction history.
+    - : One-time script to add old promotion rewards into the main transaction history.
+    - : Emergency button to release all stuck capital.
+- **Updated Core Endpoints:**
+    - : Returns .
+    - : Now decrements  and triggers a level recalculation.
+    - : Now increments  and triggers a level recalculation.
+
+**Critical Info for New Agent**
+- **Level Logic is Sensitive:** The logic for user level progression is now tied to a new  field. This field tracks only original capital deposits minus withdrawals (of capital). It explicitly excludes ROI. Any changes to deposit or withdrawal flows must correctly update this field and trigger a level recalculation.
+- **Admin Data Migration:** The admin panel now has buttons that trigger one-time data migration/fixing scripts (e.g., Migrate Capital, Fix Levels). These are crucial for ensuring data integrity on the live site after a deployment.
+- **Automatic Capital Release:** Capital from expired stakes is now released by an automatic background process that runs every 5 minutes. The Force Release button in the admin panel should only be used for emergencies if the automatic process fails.
+
+**documents and test reports created in this job**
+- 
+- 
+-  (updated multiple times)
+
+**Last 10 User Messages and any pending HUMAN messages**
+1.  **User Request:** Outline the entire system logic from deposit to withdrawal. (Status: COMPLETED)
+2.  **User Question:** Clarify the function of  and when promo rewards are paid. (Status: COMPLETED)
+3.  **User Question:** Asked if  can be deleted and if promo rewards are saved to transactions. (Status: COMPLETED)
+4.  **User Request:** Delete  from the UI and ensure promo rewards are saved to the transaction history. (Status: IN PROGRESS)
+5.  **User Request:** Add an IP address to the MongoDB Atlas whitelist. (Status: ADDRESSED - Agent explained it's outside its capabilities).
+6.  **User Request:** Re-iterated the IP whitelist request, believing the agent could do it. (Status: ADDRESSED - Agent re-explained its limitations).
+7.  **User Request (Internal):** Agent misinterpreted a user message as a request to fix capital release. (Status: SUPERSEDED - Later fixed correctly).
+8.  **User Request:** Asked for confirmation that capital release is automatic and if the Force Release button carries any risk. (Status: COMPLETED)
+9.  **User Request:** Final, precise clarification on level calculation logic: it must be based on deposited capital only (excluding ROI), and a user's level should drop if they withdraw that capital. (Status: COMPLETED)
+10. **User Confirmation:** Confirmed the agent's understanding of the level logic was correct and approved the fix. (Status: COMPLETED)
+
+**Project Health Check:**
+- **Broken**: No known broken functionality.
+- **Mocked**: No mocked services are in use.
+
+**3rd Party Integrations**
+- **Resend**: Used for sending transactional emails. Requires a User API Key.
+- **CoinGecko**: Used in  but is experiencing API rate-limiting errors. Does not have an API key configured.
+
+**Testing status**
+- **Testing agent used after significant changes**: YES
+- **Troubleshoot agent used after agent stuck in loop**: NO
+- **Test files created**: None.
+- **Known regressions**: None.
+
+**Credentials to test flow:**
+- **Admin**:  / 
+- **User**:  / 
+
+**What agent forgot to execute**
+- The agent has written the code to remove the  metric and log promotion rewards to the main transaction history. However, the agent has not yet restarted the services or tested these latest changes to verify their correctness and ensure no new bugs were introduced.</analysis>

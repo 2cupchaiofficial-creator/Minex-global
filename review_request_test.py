@@ -11,7 +11,7 @@ Focused test for the specific APIs mentioned in the review request:
 import requests
 import json
 
-BASE_URL = "https://cryptostake-4.preview.emergentagent.com"
+BASE_URL = "https://capital-release.preview.emergentagent.com"
 
 def test_api(name, method, endpoint, expected_status=200, data=None, headers=None):
     """Test a single API endpoint"""
