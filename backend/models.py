@@ -106,11 +106,12 @@ class User(BaseModel):
     role: UserRole = UserRole.USER
     level: int = 1  # Package level (1-6)
     total_investment: float = 0.0  # Historical all-time deposits
-    wallet_balance: float = 0.0  # Available balance for staking/withdrawal
+    wallet_balance: float = 0.0  # Available balance for staking/withdrawal (ROI + Commission + returned capital)
     roi_balance: float = 0.0  # ROI earnings
     commission_balance: float = 0.0  # Commission earnings
     staked_amount: float = 0.0  # Currently active staked amount
     deposited_capital: float = 0.0  # LEVEL CALCULATION: Original deposits minus withdrawals (excludes ROI)
+    fund_balance: float = 0.0  # FUND WALLET: Deposit funds available for staking (decreases when staked)
     referral_code: str
     referred_by: Optional[str] = None
     direct_referrals: List[str] = Field(default_factory=list)
