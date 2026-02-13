@@ -207,7 +207,7 @@ class ROIScheduler:
                     
                     # DOUBLE CHECK: Also verify the stake itself is not already marked as capital_returned
                     fresh_stake = await self.db.staking.find_one({"staking_id": stake_id}, {"_id": 0})
-                    if fresh_stake and fresh_stake.get("capital_returned") == True:
+                    if fresh_stake and fresh_stake.get("capital_returned") is True:
                         logger.info(f"Stake {stake_id} already marked as capital_returned, skipping")
                         already_has_txn += 1
                         continue
