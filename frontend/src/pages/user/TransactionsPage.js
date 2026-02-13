@@ -237,7 +237,7 @@ const TransactionsPage = () => {
                     {getTypeIcon(tx.type)}
                   </div>
                   <div>
-                    <p className="text-white font-medium text-sm md:text-base capitalize">{tx.type}</p>
+                    <p className="text-white font-medium text-sm md:text-base">{getTypeLabel(tx.type)}</p>
                     <p className="text-gray-500 text-xs md:text-sm truncate max-w-[150px] md:max-w-[300px]">{tx.description}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <Clock className="w-3 h-3 text-gray-600" />
