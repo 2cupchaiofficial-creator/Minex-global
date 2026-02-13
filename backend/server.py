@@ -788,6 +788,7 @@ async def get_dashboard(current_user: User = Depends(get_current_user)):
         roi_balance=current_user.roi_balance,
         commission_balance=current_user.commission_balance,
         total_investment=current_user.total_investment,
+        deposited_capital=current_user.deposited_capital,
         active_staking=active_staking,
         current_level=actual_level,  # Use actual level from active staking
         daily_roi_percentage=daily_roi,
