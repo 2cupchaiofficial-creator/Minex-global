@@ -369,7 +369,8 @@ class DashboardStats(BaseModel):
     total_balance: float  # Total withdrawable (roi + commission)
     roi_balance: float
     commission_balance: float
-    total_investment: float
+    total_investment: float  # Historical - kept for backward compatibility
+    deposited_capital: float = 0.0  # Current deposit in system (for level calculation)
     active_staking: float  # Currently staked amount
     current_level: int
     daily_roi_percentage: float
