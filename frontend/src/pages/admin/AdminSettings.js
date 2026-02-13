@@ -711,6 +711,43 @@ const AdminSettings = () => {
               <span>Migrate Fund Balances</span>
             </button>
           </div>
+          
+          <div className="border-t border-white/10 pt-4 mt-4">
+            <h3 className="text-sm font-medium text-red-400 mb-2">🚨 Fix Corrupted Balances</h3>
+            <p className="text-xs text-gray-400 mb-3">
+              Fix users with negative staked_amount or incorrect wallet_balance due to double capital release bug.
+            </p>
+            <button
+              type="button"
+              onClick={async () => {
+                if (!window.confirm('⚠️ This will recalculate and fix ALL user balances based on transaction history. This is safe but may take a moment. Continue?')) return;
+                setFixBalancesLoading(true);
+                try {
+                  const response = await adminAPI.fixCorruptedBalances();
+                  if (response.data.users_fixed > 0) {
+                    toast.success(`Fixed ${response.data.users_fixed} users with corrupted balances!`);
+                    console.log('Fix details:', response.data.fixes);
+                  } else {
+                    toast.info('No corrupted balances found. All users are OK!');
+                  }
+                } catch (error) {
+                  toast.error(error.response?.data?.detail || 'Failed to fix balances');
+                } finally {
+                  setFixBalancesLoading(false);
+                }
+              }}
+              disabled={fixBalancesLoading}
+              className="flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg transition text-sm font-medium"
+              data-testid="fix-balances-btn"
+            >
+              {fixBalancesLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <AlertTriangle className="w-4 h-4" />
+              )}
+              <span>Fix Corrupted User Balances</span>
+            </button>
+          </div>
         </div>
 
         {/* Email Logs */}
