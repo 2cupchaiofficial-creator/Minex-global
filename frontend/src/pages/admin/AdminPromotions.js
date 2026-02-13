@@ -144,14 +144,25 @@ const AdminPromotions = () => {
           <h1 className="text-xl md:text-2xl font-bold text-white mb-1">Promotions</h1>
           <p className="text-gray-400 text-sm">Manage promotional rewards for deposits</p>
         </div>
-        <button
-          onClick={() => { setShowForm(true); setEditingPromotion(null); resetForm(); }}
-          className="btn-primary flex items-center gap-2"
-          data-testid="new-promotion-btn"
-        >
-          <Plus className="w-5 h-5" />
-          New Promotion
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={handleMigrateRewards}
+            disabled={migrateLoading}
+            className="btn-secondary flex items-center gap-2 text-sm"
+            data-testid="migrate-promo-rewards-btn"
+          >
+            <RefreshCw className={`w-4 h-4 ${migrateLoading ? 'animate-spin' : ''}`} />
+            {migrateLoading ? 'Migrating...' : 'Migrate Rewards to History'}
+          </button>
+          <button
+            onClick={() => { setShowForm(true); setEditingPromotion(null); resetForm(); }}
+            className="btn-primary flex items-center gap-2"
+            data-testid="new-promotion-btn"
+          >
+            <Plus className="w-5 h-5" />
+            New Promotion
+          </button>
+        </div>
       </div>
 
       {/* Promotion Form Modal */}
