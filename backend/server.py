@@ -1706,6 +1706,165 @@ async def migrate_fund_balance(admin: User = Depends(get_admin_user)):
         "migrations": migrations
     }
 
+@api_router.post("/admin/fix-corrupted-balances")
+async def fix_corrupted_balances(admin: User = Depends(get_admin_user)):
+    """
+    FIX CORRUPTED USER BALANCES:
+    - Fix negative staked_amount (set to 0)
+    - Recalculate wallet_balance based on actual transaction history
+    - Fix users who received double capital release
+    """
+    users = await db.users.find({}, {"_id": 0}).to_list(10000)
+    
+    fixes = []
+    users_fixed = 0
+    
+    for user in users:
+        user_id = user.get("user_id")
+        email = user.get("email")
+        current_staked = user.get("staked_amount", 0)
+        current_wallet = user.get("wallet_balance", 0)
+        current_roi = user.get("roi_balance", 0)
+        current_commission = user.get("commission_balance", 0)
+        
+        fix_needed = False
+        fix_details = {"email": email, "user_id": user_id, "issues": []}
+        
+        # ISSUE 1: Negative staked_amount
+        if current_staked < 0:
+            fix_needed = True
+            fix_details["issues"].append({
+                "type": "negative_staked_amount",
+                "old_value": current_staked,
+                "new_value": 0
+            })
+        
+        # Calculate what the wallet_balance SHOULD be based on transaction history
+        # wallet_balance = deposits - withdrawals - active_stakes + capital_returns + ROI + commissions + promo_rewards
+        
+        # Get total approved deposits
+        deposits = await db.deposits.find({
+            "user_id": user_id,
+            "status": "approved"
+        }, {"_id": 0}).to_list(1000)
+        total_deposits = sum(d.get("net_amount", d.get("amount", 0)) for d in deposits)
+        
+        # Get total approved withdrawals
+        withdrawals = await db.withdrawals.find({
+            "user_id": user_id,
+            "status": "approved"
+        }, {"_id": 0}).to_list(1000)
+        total_withdrawals = sum(w.get("amount", 0) for w in withdrawals)
+        
+        # Get currently active stakes
+        active_stakes = await db.staking.find({
+            "user_id": user_id,
+            "status": "active"
+        }, {"_id": 0}).to_list(1000)
+        total_active_staked = sum(s.get("amount", 0) for s in active_stakes)
+        
+        # Get total capital returns from transactions
+        capital_returns = await db.transactions.find({
+            "user_id": user_id,
+            "type": "capital_return"
+        }, {"_id": 0}).to_list(1000)
+        total_capital_returned = sum(c.get("amount", 0) for c in capital_returns)
+        
+        # Get total ROI from transactions
+        roi_txns = await db.transactions.find({
+            "user_id": user_id,
+            "type": "roi"
+        }, {"_id": 0}).to_list(1000)
+        total_roi = sum(r.get("amount", 0) for r in roi_txns)
+        
+        # Get total commissions
+        commission_txns = await db.commissions.find({
+            "user_id": user_id
+        }, {"_id": 0}).to_list(1000)
+        total_commissions = sum(c.get("amount", 0) for c in commission_txns)
+        
+        # Get promo rewards
+        promo_rewards = await db.promotion_rewards.find({
+            "user_id": user_id
+        }, {"_id": 0}).to_list(1000)
+        total_promo = sum(p.get("reward_amount", 0) for p in promo_rewards)
+        
+        # CORRECT wallet_balance calculation
+        correct_wallet = (
+            total_deposits 
+            - total_withdrawals 
+            - total_active_staked 
+            + total_capital_returned 
+            + total_roi 
+            + total_commissions 
+            + total_promo
+        )
+        
+        # ISSUE 2: wallet_balance is way off (difference > $1 to account for floating point)
+        wallet_diff = abs(current_wallet - correct_wallet)
+        if wallet_diff > 1.0:
+            fix_needed = True
+            fix_details["issues"].append({
+                "type": "incorrect_wallet_balance",
+                "old_value": round(current_wallet, 2),
+                "calculated_value": round(correct_wallet, 2),
+                "difference": round(wallet_diff, 2),
+                "breakdown": {
+                    "deposits": round(total_deposits, 2),
+                    "withdrawals": round(total_withdrawals, 2),
+                    "active_stakes": round(total_active_staked, 2),
+                    "capital_returns": round(total_capital_returned, 2),
+                    "roi": round(total_roi, 2),
+                    "commissions": round(total_commissions, 2),
+                    "promo": round(total_promo, 2)
+                }
+            })
+        
+        # CORRECT staked_amount should match active stakes
+        if abs(total_active_staked - max(0, current_staked)) > 0.01:
+            fix_needed = True
+            fix_details["issues"].append({
+                "type": "staked_amount_mismatch",
+                "old_value": current_staked,
+                "correct_value": total_active_staked
+            })
+        
+        if fix_needed:
+            # Apply fixes
+            await db.users.update_one(
+                {"user_id": user_id},
+                {"$set": {
+                    "staked_amount": total_active_staked,
+                    "wallet_balance": correct_wallet,
+                    "roi_balance": total_roi,
+                    "commission_balance": total_commissions
+                }}
+            )
+            
+            fix_details["fixed"] = True
+            fix_details["new_wallet_balance"] = round(correct_wallet, 2)
+            fix_details["new_staked_amount"] = round(total_active_staked, 2)
+            fixes.append(fix_details)
+            users_fixed += 1
+            logger.info(f"Fixed corrupted balances for {email}: {fix_details['issues']}")
+    
+    # Log the operation
+    await db.system_logs.insert_one({
+        "log_id": str(uuid.uuid4()),
+        "type": "FIX_CORRUPTED_BALANCES",
+        "admin_id": admin.user_id,
+        "admin_email": admin.email,
+        "users_fixed": users_fixed,
+        "fixes": fixes,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {
+        "message": f"Balance fix complete. {users_fixed} users fixed.",
+        "users_fixed": users_fixed,
+        "fixes": fixes
+    }
+
 @api_router.post("/admin/users/{user_id}/impersonate")
 async def impersonate_user(user_id: str, admin: User = Depends(get_admin_user)):
     """
