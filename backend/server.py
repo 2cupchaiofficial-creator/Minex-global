@@ -1719,11 +1719,14 @@ async def approve_deposit(deposit_id: str, admin: User = Depends(get_admin_user)
     amount = deposit.get("net_amount", deposit["amount"])
     user_id = deposit["user_id"]
     
-    # Update wallet_balance AND deposited_capital (for level calculation)
+    # Update fund_balance (for staking), wallet_balance (for withdrawal), AND deposited_capital (for level calculation)
+    # fund_balance = deposit funds available for staking (decreases when staked)
+    # wallet_balance = also increases to allow immediate withdrawal if needed
     await db.users.update_one(
         {"user_id": user_id},
         {"$inc": {
-            "wallet_balance": amount,
+            "fund_balance": amount,  # Fund wallet - available for staking
+            "wallet_balance": amount,  # Also add to wallet for withdrawal option
             "deposited_capital": amount  # Track original deposit for level calculation
         }}
     )
