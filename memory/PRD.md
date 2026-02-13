@@ -372,6 +372,21 @@ Build a production-ready crypto investment platform called "MINEX GLOBAL" with:
 - Updated admin packages form with "Profit Share" labels
 - Configured SendGrid API with fallback mechanism
 
+### Dec 21, 2026 (CRITICAL BUG FIX - Double Capital Release)
+- **BUG IDENTIFIED**: Users getting double capital returned, causing:
+  - Negative staked_amount (e.g., -103.8)
+  - Inflated wallet_balance (double what it should be)
+- **ROOT CAUSE**: Race condition in capital release scheduler processing same stake twice
+- **FIX APPLIED**:
+  1. Added atomic update with condition `capital_returned: {"$ne": True}`
+  2. Added double-check before processing each stake
+  3. Added safeguard to prevent staked_amount going negative
+  4. Added admin tool to fix corrupted user balances
+- **ADMIN TOOL ADDED**: POST /api/admin/fix-corrupted-balances
+  - Recalculates wallet_balance from transaction history
+  - Fixes negative staked_amount
+  - Fixes users affected by the bug
+
 ### Dec 21, 2026 (Fund Wallet Implementation)
 - Implemented Fund Wallet separation from Cash Wallet:
   - Top-right header now shows "Fund Wallet" (deposit funds for staking)
@@ -387,7 +402,6 @@ Build a production-ready crypto investment platform called "MINEX GLOBAL" with:
 - Removed "Total Investment" from user dashboard, replaced with "Deposited Capital"
 - Added promotion reward transaction types to Transactions page filter
 - Added "Migrate Rewards to History" button on Admin Promotions page
-- All tests passing (100% backend, 100% frontend)
 
 ### Previous
 - Initial platform setup
