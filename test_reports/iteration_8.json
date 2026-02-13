@@ -1,0 +1,96 @@
+{
+  "summary": "Tested the new deposited_capital feature and promotion rewards transaction logging. All backend APIs pass. Dashboard shows 'Deposited Capital' ($1,000.00) instead of 'Total Investment'. Transaction filter includes 'Promo Rewards' and 'Referral Promos' options. Admin migration endpoint works correctly.",
+
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Admin Promotions page",
+        "issues": ["No UI button for 'Migrate Promo Rewards to Transactions' endpoint - API exists at /api/admin/migrate-promo-rewards-to-transactions but no corresponding button in frontend. Low priority as endpoint can be called programmatically."]
+      }
+    ]
+  },
+
+  "passed_tests": [
+    "User login works correctly",
+    "Admin login works correctly", 
+    "Dashboard API returns deposited_capital field",
+    "Dashboard displays 'Deposited Capital' label (not 'Total Investment')",
+    "Dashboard shows correct deposited_capital value ($1,000.00)",
+    "Transactions API works correctly",
+    "Transactions page has 'Promo Rewards' filter option",
+    "Transactions page has 'Referral Promos' filter option",
+    "Active promotion endpoint returns current promotion",
+    "Admin migration endpoint /api/admin/migrate-promo-rewards-to-transactions works",
+    "Admin migration endpoint requires admin authentication",
+    "Admin migration endpoint rejects regular users (403)",
+    "Admin can get all promotions",
+    "Admin can get all users for impersonation",
+    "Admin Users page shows 'Deposited Capital' column",
+    "Admin Users page has 'Login' impersonation buttons"
+  ],
+
+  "test_report_links": [
+    "/app/backend/tests/test_deposited_capital_promo.py",
+    "/app/test_reports/pytest/pytest_results_iteration8.xml"
+  ],
+
+  "action_items": [
+    "OPTIONAL: Add UI button for 'Migrate Promo Rewards to Transactions' on Admin Promotions page"
+  ],
+
+  "critical_code_review_comments": [],
+
+  "updated_files": [
+    "/app/backend/tests/test_deposited_capital_promo.py"
+  ],
+
+  "success_rate": {
+    "backend": "100% (12/12 tests passed)",
+    "frontend": "100%"
+  },
+
+  "test_credentials": {
+    "admin": {"email": "admin@minex.online", "password": "password"},
+    "user": {"email": "masteruser@gmail.com", "password": "password"}
+  },
+
+  "seed_data_creation": "None",
+
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+
+  "context_for_next_testing_agent": "All features working correctly. Dashboard shows 'Deposited Capital' instead of 'Total Investment'. Transaction filter has promo reward options. Admin migration endpoint works via API. No promotion reward transactions exist yet because no deposits were made during an active promotion period.",
+
+  "feature_verification_summary": {
+    "deposited_capital_on_dashboard": {
+      "status": "PASS",
+      "api_returns_field": true,
+      "ui_displays_correctly": true,
+      "value_shown": "$1,000.00"
+    },
+    "promotion_rewards_in_transactions": {
+      "status": "PASS",
+      "filter_options_present": true,
+      "types_available": ["promotion_self", "promotion_referral"],
+      "note": "No promo transactions exist yet - would appear when deposits made during active promotion"
+    },
+    "admin_migration_endpoint": {
+      "status": "PASS",
+      "endpoint": "/api/admin/migrate-promo-rewards-to-transactions",
+      "requires_admin": true,
+      "ui_button_missing": true
+    },
+    "admin_impersonation": {
+      "status": "PASS",
+      "login_buttons_visible": true,
+      "users_list_works": true
+    }
+  }
+}
