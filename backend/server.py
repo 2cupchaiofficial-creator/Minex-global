@@ -1105,8 +1105,9 @@ async def create_staking(staking_data: StakingCreate, current_user: User = Depen
     if approved_deposits == 0:
         raise HTTPException(status_code=400, detail="Please make a deposit first before staking")
     
-    # Check balance
-    if current_user.wallet_balance < staking_data.amount:
+    # Check balance - user can stake from fund_balance or wallet_balance
+    available_balance = current_user.wallet_balance
+    if available_balance < staking_data.amount:
         raise HTTPException(status_code=400, detail="Insufficient balance. Please deposit first.")
     
     # Get package
@@ -1149,11 +1150,17 @@ async def create_staking(staking_data: StakingCreate, current_user: User = Depen
     await db.staking.insert_one(staking_doc)
     staking_doc.pop("_id", None)
     
-    # Deduct from wallet balance and update staked_amount
+    # Calculate how much to deduct from fund_balance
+    user = await db.users.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    current_fund_balance = user.get("fund_balance", 0)
+    fund_deduct = min(staking_data.amount, current_fund_balance)  # Deduct from fund_balance first
+    
+    # Deduct from wallet balance, fund_balance and update staked_amount
     await db.users.update_one(
         {"user_id": current_user.user_id},
         {"$inc": {
             "wallet_balance": -staking_data.amount,
+            "fund_balance": -fund_deduct,  # Deduct from fund wallet
             "total_investment": staking_data.amount,
             "staked_amount": staking_data.amount
         }}
