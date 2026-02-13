@@ -231,9 +231,9 @@ Build a production-ready crypto investment platform called "MINEX GLOBAL" with:
 
 ### User
 - GET /api/user/profile
-- GET /api/user/dashboard
+- GET /api/user/dashboard (returns deposited_capital)
 - GET /api/user/team
-- GET /api/user/transactions
+- GET /api/user/transactions (includes promotion_self, promotion_referral)
 - PUT /api/user/password
 
 ### Deposits & Withdrawals
@@ -250,6 +250,7 @@ Build a production-ready crypto investment platform called "MINEX GLOBAL" with:
 ### Admin
 - GET /api/admin/dashboard
 - GET /api/admin/users
+- POST /api/admin/users/{id}/impersonate
 - GET /api/admin/deposits
 - POST /api/admin/deposits/{id}/approve
 - POST /api/admin/deposits/{id}/reject
@@ -262,11 +263,15 @@ Build a production-ready crypto investment platform called "MINEX GLOBAL" with:
 - POST /api/admin/settings/qr-code
 - POST /api/admin/calculate-roi
 - GET /api/admin/roi-scheduler/status
+- POST /api/admin/roi-scheduler/force-release-capital
 - GET /api/admin/promotions
 - POST /api/admin/promotions
 - PUT /api/admin/promotions/{id}
 - DELETE /api/admin/promotions/{id}
 - GET /api/admin/promotions/{id}/rewards
+- POST /api/admin/recalculate-all-levels
+- POST /api/admin/migrate-deposited-capital
+- POST /api/admin/migrate-promo-rewards-to-transactions
 
 ### Public
 - GET /api/promotions/active - Returns currently active promotion
