@@ -123,6 +123,20 @@ const AdminPromotions = () => {
     return promo.is_active && now >= start && now <= end;
   };
 
+  const handleMigrateRewards = async () => {
+    if (!window.confirm('This will migrate past promotion rewards to transaction history. Continue?')) return;
+    
+    setMigrateLoading(true);
+    try {
+      const response = await adminAPI.migratePromoRewards();
+      toast.success(`Migration complete: ${response.data.migrated} migrated, ${response.data.skipped} skipped`);
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to migrate rewards');
+    } finally {
+      setMigrateLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6" data-testid="admin-promotions">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
