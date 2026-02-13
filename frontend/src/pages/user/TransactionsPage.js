@@ -210,6 +210,9 @@ const TransactionsPage = () => {
               <SelectItem value="withdrawal">Withdrawals</SelectItem>
               <SelectItem value="roi">ROI Earnings</SelectItem>
               <SelectItem value="commission">Commissions</SelectItem>
+              <SelectItem value="promotion_self">Promo Rewards</SelectItem>
+              <SelectItem value="promotion_referral">Referral Promos</SelectItem>
+              <SelectItem value="capital_return">Capital Returns</SelectItem>
             </SelectContent>
           </Select>
         </div>
