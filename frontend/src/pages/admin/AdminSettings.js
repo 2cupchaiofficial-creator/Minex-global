@@ -715,20 +715,21 @@ const AdminSettings = () => {
           <div className="border-t border-white/10 pt-4 mt-4">
             <h3 className="text-sm font-medium text-red-400 mb-2">🚨 Fix Corrupted Balances</h3>
             <p className="text-xs text-gray-400 mb-3">
-              Fix users with negative staked_amount or incorrect wallet_balance due to double capital release bug.
+              Recalculate ALL user balances from transaction history. Safe to run multiple times - same result every time (idempotent).
+              <br/><span className="text-yellow-400">Formula: Deposits - Withdrawals - ActiveStakes + ROI + Commissions + Promo</span>
             </p>
             <button
               type="button"
               onClick={async () => {
-                if (!window.confirm('⚠️ This will recalculate and fix ALL user balances based on transaction history. This is safe but may take a moment. Continue?')) return;
+                if (!window.confirm('This will recalculate ALL user balances from transaction history. This is safe and can be run multiple times. Continue?')) return;
                 setFixBalancesLoading(true);
                 try {
                   const response = await adminAPI.fixCorruptedBalances();
                   if (response.data.users_fixed > 0) {
-                    toast.success(`Fixed ${response.data.users_fixed} users with corrupted balances!`);
+                    toast.success(`Fixed ${response.data.users_fixed} of ${response.data.total_users} users!`);
                     console.log('Fix details:', response.data.fixes);
                   } else {
-                    toast.info('No corrupted balances found. All users are OK!');
+                    toast.info('All user balances are already correct!');
                   }
                 } catch (error) {
                   toast.error(error.response?.data?.detail || 'Failed to fix balances');
@@ -745,7 +746,7 @@ const AdminSettings = () => {
               ) : (
                 <AlertTriangle className="w-4 h-4" />
               )}
-              <span>Fix Corrupted User Balances</span>
+              <span>Recalculate All User Balances</span>
             </button>
           </div>
         </div>
