@@ -205,6 +205,13 @@ class ROIScheduler:
                         already_has_txn += 1
                         continue
                     
+                    # DOUBLE CHECK: Also verify the stake itself is not already marked as capital_returned
+                    fresh_stake = await self.db.staking.find_one({"staking_id": stake_id}, {"_id": 0})
+                    if fresh_stake and fresh_stake.get("capital_returned") == True:
+                        logger.info(f"Stake {stake_id} already marked as capital_returned, skipping")
+                        already_has_txn += 1
+                        continue
+                    
                     logger.info(f"Processing expired stake {stake_id} for user {user_id}, amount ${amount}")
                     
                     # Get current user to verify
@@ -213,9 +220,18 @@ class ROIScheduler:
                         logger.warning(f"User {user_id} not found for stake {stake_id}")
                         continue
                     
-                    # Mark stake as completed with capital returned
-                    await self.db.staking.update_one(
-                        {"staking_id": stake_id},
+                    # SAFEGUARD: Check if staked_amount would go negative
+                    current_staked = user.get("staked_amount", 0)
+                    if current_staked < amount:
+                        logger.warning(f"User {user_id} staked_amount ({current_staked}) < capital to return ({amount}). Adjusting to prevent negative.")
+                        # Only reduce by what's available to prevent negative
+                        actual_deduct = max(0, current_staked)
+                    else:
+                        actual_deduct = amount
+                    
+                    # Mark stake as completed with capital returned FIRST (atomic operation)
+                    result = await self.db.staking.update_one(
+                        {"staking_id": stake_id, "capital_returned": {"$ne": True}},  # Only if not already returned
                         {"$set": {
                             "status": "completed",
                             "capital_returned": True,
@@ -223,13 +239,25 @@ class ROIScheduler:
                         }}
                     )
                     
+                    # If no document was modified, skip (already processed by another run)
+                    if result.modified_count == 0:
+                        logger.info(f"Stake {stake_id} was already processed by another run, skipping")
+                        already_has_txn += 1
+                        continue
+                    
                     # Transfer capital to cash wallet and reduce staked_amount
                     await self.db.users.update_one(
                         {"user_id": user_id},
                         {"$inc": {
                             "wallet_balance": amount,
-                            "staked_amount": -amount
+                            "staked_amount": -actual_deduct
                         }}
+                    )
+                    
+                    # SAFEGUARD: Ensure staked_amount is not negative after update
+                    await self.db.users.update_one(
+                        {"user_id": user_id, "staked_amount": {"$lt": 0}},
+                        {"$set": {"staked_amount": 0}}
                     )
                     
                     # Create transaction record
