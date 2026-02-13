@@ -143,6 +143,7 @@ class UserResponse(BaseModel):
     wallet_balance: float
     roi_balance: float
     commission_balance: float
+    fund_balance: float = 0.0  # Fund wallet for deposits available to stake
     referral_code: str
     referred_by: Optional[str]
     direct_referrals: List[str]
