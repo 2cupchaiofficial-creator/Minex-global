@@ -133,18 +133,30 @@ Build a production-ready crypto investment platform called "MINEX GLOBAL" with:
   - All impersonations logged with admin_id and target_user_id
 
 ### Phase 10 - Level Calculation Logic Fix (Completed - Feb 10, 2026)
-- [x] **CRITICAL BUG FIX**: Level progression now uses `staked_amount` (active stakes) instead of `total_investment` (historical)
+- [x] **CRITICAL BUG FIX**: Level progression now uses `deposited_capital` (original deposits minus withdrawals)
 - [x] **Backend Changes**:
-  - `calculate_user_level()` function updated to use staked_amount
-  - Dashboard progress calculation updated to show staked_amount
+  - `calculate_user_level()` function updated to use deposited_capital
+  - Dashboard progress calculation updated to show deposited_capital
   - New endpoint: POST /api/admin/recalculate-all-levels
+  - New endpoint: POST /api/admin/migrate-deposited-capital
 - [x] **Frontend Changes**:
-  - AdminUsers table column renamed from "Investment" to "Active Staking"
+  - AdminUsers table column shows "Deposited Capital"
   - "Fix User Levels" button added to admin Users page
   - Button triggers recalculation and shows detailed results
 - [x] **Database Impact**:
   - All user levels recalculated based on correct logic
   - System logs track level recalculation operations
+
+### Phase 11 - Dashboard Cleanup & Promo Transaction Logging (Completed - Dec 21, 2026)
+- [x] **Removed "Total Investment" Metric**:
+  - Replaced with "Deposited Capital" on user dashboard
+  - Shows accurate capital in system (deposits - withdrawals)
+- [x] **Promotion Rewards in Transaction History**:
+  - Promo rewards now logged to `transactions` collection
+  - Transaction types: `promotion_self`, `promotion_referral`
+  - Filter options added to Transactions page
+  - "Migrate Rewards to History" button added to Admin Promotions page
+  - Migration endpoint: POST /api/admin/migrate-promo-rewards-to-transactions
 
 ---
 
