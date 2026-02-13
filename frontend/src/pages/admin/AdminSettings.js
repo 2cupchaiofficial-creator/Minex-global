@@ -678,6 +678,38 @@ const AdminSettings = () => {
           <p className="text-xs text-red-400/70 mt-3">
             ⚠️ Use "Force Release ALL Capital" if packages show as completed but capital was not returned to users.
           </p>
+          
+          <div className="border-t border-white/10 pt-4 mt-4">
+            <h3 className="text-sm font-medium text-white mb-2">Fund Wallet Migration</h3>
+            <p className="text-xs text-gray-400 mb-3">
+              Calculate and update fund_balance for all users based on their deposits and stakes.
+            </p>
+            <button
+              type="button"
+              onClick={async () => {
+                if (!window.confirm('This will recalculate fund_balance for all users. Continue?')) return;
+                setFundMigrateLoading(true);
+                try {
+                  const response = await adminAPI.migrateFundBalance();
+                  toast.success(`Fund balance migration complete: ${response.data.users_updated} users updated`);
+                } catch (error) {
+                  toast.error(error.response?.data?.detail || 'Failed to migrate fund balances');
+                } finally {
+                  setFundMigrateLoading(false);
+                }
+              }}
+              disabled={fundMigrateLoading}
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg transition text-sm"
+              data-testid="migrate-fund-btn"
+            >
+              {fundMigrateLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <RefreshCw className="w-4 h-4" />
+              )}
+              <span>Migrate Fund Balances</span>
+            </button>
+          </div>
         </div>
 
         {/* Email Logs */}
