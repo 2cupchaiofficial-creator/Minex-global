@@ -26,6 +26,7 @@ const AdminSettings = () => {
   const [uploading, setUploading] = useState(false);
   const [roiLoading, setRoiLoading] = useState(false);
   const [capitalLoading, setCapitalLoading] = useState(false);
+  const [fundMigrateLoading, setFundMigrateLoading] = useState(false);
   const [schedulerStatus, setSchedulerStatus] = useState(null);
   const [emailLogs, setEmailLogs] = useState([]);
   const [activeQrUpload, setActiveQrUpload] = useState(null); // 'trc20' or 'bep20'
