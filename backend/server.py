@@ -1709,10 +1709,15 @@ async def migrate_fund_balance(admin: User = Depends(get_admin_user)):
 @api_router.post("/admin/fix-corrupted-balances")
 async def fix_corrupted_balances(admin: User = Depends(get_admin_user)):
     """
-    FIX CORRUPTED USER BALANCES:
-    - Fix negative staked_amount (set to 0)
-    - Recalculate wallet_balance based on actual transaction history
-    - Fix users who received double capital release
+    FIX CORRUPTED USER BALANCES - 100% IDEMPOTENT
+    
+    CORRECT FORMULA (no double-counting):
+    wallet_balance = Deposits - Withdrawals - Active_Stakes + ROI + Commissions + Promo
+    
+    NOTE: We do NOT add capital_returns because:
+    - When stake completes, it's removed from active_stakes
+    - The original deposit amount becomes available again automatically
+    - Adding capital_returns would DOUBLE COUNT the deposit!
     """
     users = await db.users.find({}, {"_id": 0}).to_list(10000)
     
@@ -1722,124 +1727,122 @@ async def fix_corrupted_balances(admin: User = Depends(get_admin_user)):
     for user in users:
         user_id = user.get("user_id")
         email = user.get("email")
-        current_staked = user.get("staked_amount", 0)
         current_wallet = user.get("wallet_balance", 0)
-        current_roi = user.get("roi_balance", 0)
-        current_commission = user.get("commission_balance", 0)
+        current_staked = user.get("staked_amount", 0)
         
-        fix_needed = False
-        fix_details = {"email": email, "user_id": user_id, "issues": []}
+        # ===== CALCULATE FROM RAW TRANSACTION DATA =====
         
-        # ISSUE 1: Negative staked_amount
-        if current_staked < 0:
-            fix_needed = True
-            fix_details["issues"].append({
-                "type": "negative_staked_amount",
-                "old_value": current_staked,
-                "new_value": 0
-            })
-        
-        # Calculate what the wallet_balance SHOULD be based on transaction history
-        # wallet_balance = deposits - withdrawals - active_stakes + capital_returns + ROI + commissions + promo_rewards
-        
-        # Get total approved deposits
+        # 1. Total APPROVED deposits (net_amount after charges)
         deposits = await db.deposits.find({
             "user_id": user_id,
             "status": "approved"
         }, {"_id": 0}).to_list(1000)
         total_deposits = sum(d.get("net_amount", d.get("amount", 0)) for d in deposits)
         
-        # Get total approved withdrawals
+        # 2. Total APPROVED withdrawals
         withdrawals = await db.withdrawals.find({
             "user_id": user_id,
             "status": "approved"
         }, {"_id": 0}).to_list(1000)
         total_withdrawals = sum(w.get("amount", 0) for w in withdrawals)
         
-        # Get currently active stakes
+        # 3. Currently ACTIVE stakes only (not completed ones)
         active_stakes = await db.staking.find({
             "user_id": user_id,
             "status": "active"
         }, {"_id": 0}).to_list(1000)
         total_active_staked = sum(s.get("amount", 0) for s in active_stakes)
         
-        # Get total capital returns from transactions
-        capital_returns = await db.transactions.find({
-            "user_id": user_id,
-            "type": "capital_return"
-        }, {"_id": 0}).to_list(1000)
-        total_capital_returned = sum(c.get("amount", 0) for c in capital_returns)
-        
-        # Get total ROI from transactions
-        roi_txns = await db.transactions.find({
-            "user_id": user_id,
-            "type": "roi"
+        # 4. Total ROI earned (from roi_transactions collection)
+        roi_txns = await db.roi_transactions.find({
+            "user_id": user_id
         }, {"_id": 0}).to_list(1000)
         total_roi = sum(r.get("amount", 0) for r in roi_txns)
         
-        # Get total commissions
+        # 5. Total commissions earned
         commission_txns = await db.commissions.find({
             "user_id": user_id
         }, {"_id": 0}).to_list(1000)
         total_commissions = sum(c.get("amount", 0) for c in commission_txns)
         
-        # Get promo rewards
+        # 6. Total promotion rewards
         promo_rewards = await db.promotion_rewards.find({
             "user_id": user_id
         }, {"_id": 0}).to_list(1000)
         total_promo = sum(p.get("reward_amount", 0) for p in promo_rewards)
         
-        # CORRECT wallet_balance calculation
+        # ===== CORRECT FORMULA (NO DOUBLE COUNTING) =====
+        # When staking completes: active_stakes decreases, so deposit becomes available again
+        # We do NOT add capital_returns - that would double count!
         correct_wallet = (
             total_deposits 
             - total_withdrawals 
             - total_active_staked 
-            + total_capital_returned 
             + total_roi 
             + total_commissions 
             + total_promo
         )
         
-        # ISSUE 2: wallet_balance is way off (difference > $1 to account for floating point)
+        # Ensure non-negative
+        correct_wallet = max(0, correct_wallet)
+        
+        # ===== ALWAYS UPDATE (idempotent - same result every time) =====
+        fix_details = {
+            "email": email,
+            "user_id": user_id,
+            "old_wallet_balance": round(current_wallet, 2),
+            "old_staked_amount": round(current_staked, 2),
+            "new_wallet_balance": round(correct_wallet, 2),
+            "new_staked_amount": round(total_active_staked, 2),
+            "breakdown": {
+                "deposits": round(total_deposits, 2),
+                "withdrawals": round(total_withdrawals, 2),
+                "active_stakes": round(total_active_staked, 2),
+                "roi": round(total_roi, 2),
+                "commissions": round(total_commissions, 2),
+                "promo": round(total_promo, 2)
+            }
+        }
+        
+        # Check if there's actually a difference
         wallet_diff = abs(current_wallet - correct_wallet)
-        if wallet_diff > 1.0:
-            fix_needed = True
-            fix_details["issues"].append({
-                "type": "incorrect_wallet_balance",
-                "old_value": round(current_wallet, 2),
-                "calculated_value": round(correct_wallet, 2),
-                "difference": round(wallet_diff, 2),
-                "breakdown": {
-                    "deposits": round(total_deposits, 2),
-                    "withdrawals": round(total_withdrawals, 2),
-                    "active_stakes": round(total_active_staked, 2),
-                    "capital_returns": round(total_capital_returned, 2),
-                    "roi": round(total_roi, 2),
-                    "commissions": round(total_commissions, 2),
-                    "promo": round(total_promo, 2)
-                }
-            })
+        staked_diff = abs(current_staked - total_active_staked)
         
-        # CORRECT staked_amount should match active stakes
-        if abs(total_active_staked - max(0, current_staked)) > 0.01:
-            fix_needed = True
-            fix_details["issues"].append({
-                "type": "staked_amount_mismatch",
-                "old_value": current_staked,
-                "correct_value": total_active_staked
-            })
-        
-        if fix_needed:
-            # Apply fixes
+        if wallet_diff > 0.01 or staked_diff > 0.01 or current_staked < 0:
+            # Apply fix with $set (idempotent - not incrementing)
             await db.users.update_one(
                 {"user_id": user_id},
                 {"$set": {
-                    "staked_amount": total_active_staked,
                     "wallet_balance": correct_wallet,
+                    "staked_amount": total_active_staked,
                     "roi_balance": total_roi,
                     "commission_balance": total_commissions
                 }}
             )
+            
+            fix_details["was_fixed"] = True
+            fix_details["wallet_change"] = round(correct_wallet - current_wallet, 2)
+            fixes.append(fix_details)
+            users_fixed += 1
+            logger.info(f"Fixed balances for {email}: wallet {current_wallet} -> {correct_wallet}")
+    
+    # Log the operation
+    await db.system_logs.insert_one({
+        "log_id": str(uuid.uuid4()),
+        "type": "FIX_CORRUPTED_BALANCES_V2",
+        "admin_id": admin.user_id,
+        "admin_email": admin.email,
+        "users_fixed": users_fixed,
+        "total_users": len(users),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {
+        "message": f"Balance fix complete. {users_fixed} of {len(users)} users updated.",
+        "users_fixed": users_fixed,
+        "total_users": len(users),
+        "fixes": fixes
+    }
             
             fix_details["fixed"] = True
             fix_details["new_wallet_balance"] = round(correct_wallet, 2)
