@@ -1556,6 +1556,82 @@ async def migrate_deposited_capital(admin: User = Depends(get_admin_user)):
         "migrations": migrations
     }
 
+@api_router.post("/admin/migrate-promo-rewards-to-transactions")
+async def migrate_promo_rewards_to_transactions(admin: User = Depends(get_admin_user)):
+    """
+    MIGRATION: Copy existing promotion rewards to transactions collection.
+    This ensures users who received promo rewards before the fix can see them in transaction history.
+    """
+    # Get all promotion rewards that don't have a corresponding transaction
+    promo_rewards = await db.promotion_rewards.find({}, {"_id": 0}).to_list(10000)
+    
+    migrated = 0
+    skipped = 0
+    
+    for reward in promo_rewards:
+        reward_id = reward.get("reward_id")
+        user_id = reward.get("user_id")
+        reward_type = reward.get("reward_type")
+        amount = reward.get("reward_amount", 0)
+        created_at = reward.get("created_at")
+        promotion_id = reward.get("promotion_id")
+        deposit_amount = reward.get("deposit_amount", 0)
+        reward_percent = reward.get("reward_percent", 0)
+        
+        # Determine transaction type
+        tx_type = "promotion_self" if reward_type == "self" else "promotion_referral"
+        
+        # Check if transaction already exists
+        existing = await db.transactions.find_one({
+            "user_id": user_id,
+            "type": tx_type,
+            "amount": amount,
+            "promotion_id": promotion_id
+        })
+        
+        if existing:
+            skipped += 1
+            continue
+        
+        # Create transaction record
+        if reward_type == "self":
+            description = f"Promotion Self Reward ({reward_percent}% of ${deposit_amount:.2f})"
+        else:
+            from_user = await db.users.find_one({"user_id": reward.get("from_user_id")}, {"_id": 0, "email": 1})
+            from_email = from_user.get("email", "referral") if from_user else "referral"
+            description = f"Promotion Referral Reward ({reward_percent}% of ${deposit_amount:.2f} from {from_email})"
+        
+        await db.transactions.insert_one({
+            "transaction_id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "type": tx_type,
+            "amount": amount,
+            "description": description,
+            "promotion_id": promotion_id,
+            "status": "completed",
+            "created_at": created_at
+        })
+        
+        migrated += 1
+        logger.info(f"Migrated promo reward {reward_id} to transactions for user {user_id}")
+    
+    # Log operation
+    await db.system_logs.insert_one({
+        "log_id": str(uuid.uuid4()),
+        "type": "PROMO_REWARDS_MIGRATION",
+        "admin_id": admin.user_id,
+        "admin_email": admin.email,
+        "migrated": migrated,
+        "skipped": skipped,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {
+        "message": "Promo rewards migration complete",
+        "migrated": migrated,
+        "skipped_already_exist": skipped
+    }
+
 @api_router.post("/admin/users/{user_id}/impersonate")
 async def impersonate_user(user_id: str, admin: User = Depends(get_admin_user)):
     """
