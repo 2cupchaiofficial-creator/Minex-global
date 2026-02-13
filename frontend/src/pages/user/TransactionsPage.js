@@ -40,6 +40,13 @@ const TransactionsPage = () => {
         return <TrendingUp className="w-5 h-5" />;
       case 'commission':
         return <Gift className="w-5 h-5" />;
+      case 'promotion_self':
+      case 'promotion_referral':
+        return <Gift className="w-5 h-5" />;
+      case 'capital_return':
+        return <Wallet className="w-5 h-5" />;
+      case 'staking':
+        return <TrendingUp className="w-5 h-5" />;
       default:
         return <DollarSign className="w-5 h-5" />;
     }
@@ -55,8 +62,30 @@ const TransactionsPage = () => {
         return 'text-blue-400 bg-blue-500/10';
       case 'commission':
         return 'text-purple-400 bg-purple-500/10';
+      case 'promotion_self':
+        return 'text-yellow-400 bg-yellow-500/10';
+      case 'promotion_referral':
+        return 'text-orange-400 bg-orange-500/10';
+      case 'capital_return':
+        return 'text-cyan-400 bg-cyan-500/10';
+      case 'staking':
+        return 'text-indigo-400 bg-indigo-500/10';
       default:
         return 'text-gray-400 bg-gray-500/10';
+    }
+  };
+
+  const getTypeLabel = (type) => {
+    switch (type) {
+      case 'deposit': return 'Deposit';
+      case 'withdrawal': return 'Withdrawal';
+      case 'roi': return 'ROI';
+      case 'commission': return 'Commission';
+      case 'promotion_self': return 'Promo Reward';
+      case 'promotion_referral': return 'Referral Promo';
+      case 'capital_return': return 'Capital Return';
+      case 'staking': return 'Staking';
+      default: return type;
     }
   };
 
