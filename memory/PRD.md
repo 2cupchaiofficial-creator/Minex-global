@@ -158,6 +158,25 @@ Build a production-ready crypto investment platform called "MINEX GLOBAL" with:
   - "Migrate Rewards to History" button added to Admin Promotions page
   - Migration endpoint: POST /api/admin/migrate-promo-rewards-to-transactions
 
+### Phase 12 - Fund Wallet Separation (Completed - Dec 21, 2026)
+- [x] **New `fund_balance` Field**:
+  - Tracks deposit funds available for staking
+  - Top-right header now shows "Fund Wallet" instead of "Balance"
+  - Increases when deposit is approved
+  - Decreases when user stakes
+  - Does NOT include ROI, commissions, or returned capital
+- [x] **Cash Wallet Clarification**:
+  - Cash Wallet = ROI + Commissions (withdrawable earnings)
+  - Fund Wallet = Deposit funds available for staking
+- [x] **Backend Changes**:
+  - Added `fund_balance` to User model
+  - Deposit approval adds to `fund_balance`
+  - Staking deducts from `fund_balance`
+  - New endpoint: POST /api/admin/migrate-fund-balance
+- [x] **Frontend Changes**:
+  - Header shows "Fund Wallet" with fund_balance value
+  - "Migrate Fund Balances" button in Admin Settings
+
 ---
 
 ## Architecture
