@@ -574,6 +574,9 @@ async def register(user_data: UserCreate, background_tasks: BackgroundTasks):
         "wallet_balance": 0.0,
         "roi_balance": 0.0,
         "commission_balance": 0.0,
+        "fund_balance": 0.0,  # Fund wallet for deposit funds
+        "deposited_capital": 0.0,
+        "staked_amount": 0.0,
         "referral_code": generate_referral_code(),
         "referred_by": referred_by_id,
         "direct_referrals": [],
