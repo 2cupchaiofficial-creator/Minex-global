@@ -1843,30 +1843,6 @@ async def fix_corrupted_balances(admin: User = Depends(get_admin_user)):
         "total_users": len(users),
         "fixes": fixes
     }
-            
-            fix_details["fixed"] = True
-            fix_details["new_wallet_balance"] = round(correct_wallet, 2)
-            fix_details["new_staked_amount"] = round(total_active_staked, 2)
-            fixes.append(fix_details)
-            users_fixed += 1
-            logger.info(f"Fixed corrupted balances for {email}: {fix_details['issues']}")
-    
-    # Log the operation
-    await db.system_logs.insert_one({
-        "log_id": str(uuid.uuid4()),
-        "type": "FIX_CORRUPTED_BALANCES",
-        "admin_id": admin.user_id,
-        "admin_email": admin.email,
-        "users_fixed": users_fixed,
-        "fixes": fixes,
-        "created_at": datetime.now(timezone.utc).isoformat()
-    })
-    
-    return {
-        "message": f"Balance fix complete. {users_fixed} users fixed.",
-        "users_fixed": users_fixed,
-        "fixes": fixes
-    }
 
 @api_router.post("/admin/users/{user_id}/impersonate")
 async def impersonate_user(user_id: str, admin: User = Depends(get_admin_user)):
