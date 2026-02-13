@@ -363,9 +363,9 @@ const UserDashboard = () => {
         <div className="glass rounded-xl p-4 md:p-5">
           <div className="flex items-center gap-2 mb-2">
             <DollarSign className="w-4 h-4 text-blue-400" />
-            <span className="text-xs md:text-sm text-gray-400">Total Investment</span>
+            <span className="text-xs md:text-sm text-gray-400">Deposited Capital</span>
           </div>
-          <div className="text-lg md:text-xl font-bold text-white font-mono">{formatCurrency(stats?.total_investment || 0)}</div>
+          <div className="text-lg md:text-xl font-bold text-white font-mono">{formatCurrency(stats?.deposited_capital || 0)}</div>
         </div>
         <div className="glass rounded-xl p-4 md:p-5">
           <div className="flex items-center gap-2 mb-2">
