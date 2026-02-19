@@ -20,6 +20,7 @@ class ROIScheduler:
         self.next_run = None
         self.run_hour = 0  # Default: Run at midnight UTC
         self.run_minute = 0
+        self.has_run_today = False  # <-- ADD THIS LINE
         
     def set_dependencies(self, db, email_service):
         """Set database and email service references"""
@@ -543,31 +544,47 @@ class ROIScheduler:
         logger.info(f"ROI Distribution complete: {result}")
         return result
     
-    async def _scheduler_loop(self):
-        """Background loop that runs ROI distribution at scheduled time"""
-        logger.info(f"ROI Scheduler started. Next run: {self.next_run}")
-        
-        while self.is_running:
-            try:
-                now = datetime.now(timezone.utc)
+async def _scheduler_loop(self):
+    """Background loop that runs ROI distribution at scheduled time"""
+    logger.info(f"ROI Scheduler started. Next run: {self.next_run}")
+    
+    # Track if we've run today
+    last_run_date = None
+    
+    while self.is_running:
+        try:
+            now = datetime.now(timezone.utc)
+            today = now.date()
+            
+            # Reset has_run_today if it's a new day
+            if last_run_date != today:
+                self.has_run_today = False
+                last_run_date = today
+            
+            # Check if it's time to run AND we haven't run today
+            if self.next_run and now >= self.next_run and not self.has_run_today:
+                logger.info("Scheduled ROI distribution triggered")
                 
-                if self.next_run and now >= self.next_run:
-                    logger.info("Scheduled ROI distribution triggered")
-                    
-                    # Step 1: Distribute daily ROI
-                    await self.distribute_daily_roi()
-                    
-                    # Step 2: Process expired stakes and release capital
-                    logger.info("Processing expired stakes for capital release...")
-                    expired_result = await self.process_expired_stakes()
-                    logger.info(f"Expired stakes result: {expired_result}")
+                # Mark as run BEFORE executing to prevent multiple runs
+                self.has_run_today = True
                 
-                # Sleep for 1 minute before checking again
-                await asyncio.sleep(60)
+                # Step 1: Distribute daily ROI
+                await self.distribute_daily_roi()
                 
-            except Exception as e:
-                logger.error(f"Error in ROI scheduler loop: {e}")
-                await asyncio.sleep(60)
+                # Step 2: Process expired stakes and release capital
+                logger.info("Processing expired stakes for capital release...")
+                expired_result = await self.process_expired_stakes()
+                logger.info(f"Expired stakes result: {expired_result}")
+                
+                # Calculate next run for tomorrow
+                self._calculate_next_run()
+            
+            # Sleep for 1 minute before checking again
+            await asyncio.sleep(60)
+            
+        except Exception as e:
+            logger.error(f"Error in ROI scheduler loop: {e}")
+            await asyncio.sleep(60)
     
     async def _capital_release_loop(self):
         """
