@@ -127,7 +127,12 @@ const AdminWithdrawals = () => {
                 filteredWithdrawals.map((withdrawal) => (
                   <tr key={withdrawal.withdrawal_id} className="border-b border-white/5 hover:bg-white/5" data-testid={`withdrawal-row-${withdrawal.withdrawal_id}`}>
                     <td className="py-4 px-4 text-gray-300 text-sm">{formatDateTime(withdrawal.created_at)}</td>
-                    <td className="py-4 px-4 text-white font-mono text-sm">{withdrawal.user_id.substring(0, 12)}...</td>
+                    <td className="py-4 px-4">
+                    <div className="flex flex-col">
+                    <span className="text-white font-mono text-sm">{withdrawal.user_email || 'Unknown'}</span>
+                    <span className="text-gray-500 text-xs">{withdrawal.user_id.substring(0, 12)}...</span>
+                    </div>
+                  </td>
                     <td className="py-4 px-4 text-white font-mono font-bold">{formatCurrency(withdrawal.amount)}</td>
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-2">
@@ -203,9 +208,12 @@ const AdminWithdrawals = () => {
                 {/* User & Wallet Info */}
                 <div className="bg-black/20 rounded-lg p-3 space-y-2">
                   <div className="flex items-center gap-2 text-gray-400 text-sm">
-                    <User className="w-4 h-4" />
-                    <span className="text-white font-mono text-xs">{withdrawal.user_id.substring(0, 20)}...</span>
+                <User className="w-4 h-4 shrink-0" />
+                  <div className="flex flex-col min-w-0">
+                  <span className="text-white font-mono text-xs truncate">{withdrawal.user_email || 'Unknown'}</span>
+                  <span className="text-gray-500 text-xs">{withdrawal.user_id.substring(0, 15)}...</span>
                   </div>
+                </div>
                   <div className="flex items-center gap-2 text-gray-400 text-sm">
                     <Wallet className="w-4 h-4" />
                     <span className="text-gray-300 font-mono text-xs truncate flex-1">{withdrawal.wallet_address}</span>
