@@ -107,11 +107,11 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F172A] flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center px-4 py-12">
       {/* Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 right-10 w-72 md:w-[500px] h-72 md:h-[500px] bg-[#EC4899]/20 rounded-full blur-[120px] animate-pulse-slow"></div>
-        <div className="absolute bottom-20 left-10 w-72 md:w-[400px] h-72 md:h-[400px] bg-[#7C3AED]/15 rounded-full blur-[100px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-20 right-10 w-72 md:w-[500px] h-72 md:h-[500px] bg-[#D4AF37]/20 rounded-full blur-[120px] animate-pulse-slow"></div>
+        <div className="absolute bottom-20 left-10 w-72 md:w-[400px] h-72 md:h-[400px] bg-[#D4AF37]/15 rounded-full blur-[100px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
       </div>
       
       <motion.div
@@ -124,11 +124,11 @@ const RegisterPage = () => {
           <Link to="/">
             <img src="https://customer-assets.emergentagent.com/job_a9d66ba7-0c44-4716-b6dc-8595a53033f1/artifacts/pwb3ur38_minxlogo.png" alt="MINEX" className="h-10 mx-auto mb-6" />
           </Link>
-          <h1 className="text-2xl md:text-3xl font-bold text-white mb-2 font-display" data-testid="register-title">
+          <h1 className="text-2xl md:text-3xl font-bold text-[#E0E0E0] mb-2 font-display" data-testid="register-title">
             {step === 1 && 'Join MINEX GLOBAL'}
             {step === 2 && 'Verify Your Email'}
           </h1>
-          <p className="text-slate-400 text-sm">
+          <p className="text-[#A0A0A0] text-sm">
             {step === 1 && 'Create your account and start earning'}
             {step === 2 && `Enter the code sent to ${formData.email}`}
           </p>
@@ -136,12 +136,12 @@ const RegisterPage = () => {
 
         {/* Progress Indicator */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${step >= 1 ? 'bg-[#7C3AED] shadow-lg shadow-purple-500/30' : 'bg-slate-800 border border-white/10'}`}>
-            <span className="text-white text-sm font-bold">1</span>
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${step >= 1 ? 'bg-[#D4AF37] shadow-lg shadow-purple-500/30' : 'bg-slate-800 border border-white/10'}`}>
+            <span className="text-[#E0E0E0] text-sm font-bold">1</span>
           </div>
-          <div className={`w-16 h-1 rounded-full transition-all duration-500 ${step >= 2 ? 'bg-[#7C3AED]' : 'bg-slate-800'}`}></div>
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${step >= 2 ? 'bg-[#7C3AED] shadow-lg shadow-purple-500/30' : 'bg-slate-800 border border-white/10'}`}>
-            <span className="text-white text-sm font-bold">2</span>
+          <div className={`w-16 h-1 rounded-full transition-all duration-500 ${step >= 2 ? 'bg-[#D4AF37]' : 'bg-slate-800'}`}></div>
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${step >= 2 ? 'bg-[#D4AF37] shadow-lg shadow-purple-500/30' : 'bg-slate-800 border border-white/10'}`}>
+            <span className="text-[#E0E0E0] text-sm font-bold">2</span>
           </div>
         </div>
 
@@ -149,7 +149,7 @@ const RegisterPage = () => {
         {step === 1 && (
           <form onSubmit={(e) => { e.preventDefault(); handleSendVerification(); }} className="space-y-4">
             <div data-testid="fullname-input-group">
-              <label className="block text-sm font-medium text-slate-300 mb-2">Full Name</label>
+              <label className="block text-sm font-medium text-[#E0E0E0] mb-2">Full Name</label>
               <input
                 type="text"
                 value={formData.full_name}
@@ -162,7 +162,7 @@ const RegisterPage = () => {
             </div>
 
             <div data-testid="email-input-group">
-              <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
+              <label className="block text-sm font-medium text-[#E0E0E0] mb-2">Email</label>
               <input
                 type="email"
                 value={formData.email}
@@ -175,7 +175,7 @@ const RegisterPage = () => {
             </div>
 
             <div data-testid="password-input-group">
-              <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
+              <label className="block text-sm font-medium text-[#E0E0E0] mb-2">Password</label>
               <input
                 type="password"
                 value={formData.password}
@@ -188,7 +188,7 @@ const RegisterPage = () => {
             </div>
 
             <div data-testid="confirm-password-input-group">
-              <label className="block text-sm font-medium text-slate-300 mb-2">Confirm Password</label>
+              <label className="block text-sm font-medium text-[#E0E0E0] mb-2">Confirm Password</label>
               <input
                 type="password"
                 value={formData.confirmPassword}
@@ -201,8 +201,8 @@ const RegisterPage = () => {
             </div>
 
             <div data-testid="referral-input-group">
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Referral Code <span className="text-[#EC4899] text-xs ml-1">*Required</span>
+              <label className="block text-sm font-medium text-[#E0E0E0] mb-2">
+                Referral Code <span className="text-[#D4AF37] text-xs ml-1">*Required</span>
               </label>
               <input
                 type="text"
@@ -213,7 +213,7 @@ const RegisterPage = () => {
                 required
                 data-testid="referral-input"
               />
-              <p className="text-xs text-slate-500 mt-1.5">You need a valid referral link to register</p>
+              <p className="text-xs text-[#A0A0A0] mt-1.5">You need a valid referral link to register</p>
             </div>
 
             <button
@@ -241,23 +241,23 @@ const RegisterPage = () => {
         {/* Step 2: Email Verification */}
         {step === 2 && (
           <div className="space-y-6">
-            <div className="bg-[#7C3AED]/10 border border-[#7C3AED]/30 rounded-xl p-5 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-[#7C3AED]/20 flex items-center justify-center mx-auto mb-4">
-                <Mail className="w-8 h-8 text-[#7C3AED]" />
+            <div className="bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-xl p-5 text-center">
+              <div className="w-16 h-16 rounded-2xl bg-[#D4AF37]/20 flex items-center justify-center mx-auto mb-4">
+                <Mail className="w-8 h-8 text-[#D4AF37]" />
               </div>
-              <p className="text-slate-300 text-sm">
+              <p className="text-[#E0E0E0] text-sm">
                 We've sent a 6-digit verification code to <br/>
-                <span className="text-[#7C3AED] font-semibold">{formData.email}</span>
+                <span className="text-[#D4AF37] font-semibold">{formData.email}</span>
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Verification Code</label>
+              <label className="block text-sm font-medium text-[#E0E0E0] mb-2">Verification Code</label>
               <input
                 type="text"
                 value={verificationCode}
                 onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="w-full rounded-xl bg-[#020617] border border-white/20 text-white text-center text-2xl tracking-[0.5em] font-mono py-4 focus:outline-none focus:ring-2 focus:ring-[#7C3AED] focus:border-transparent transition-all placeholder:text-slate-600"
+                className="w-full rounded-xl bg-[#020617] border border-white/20 text-[#E0E0E0] text-center text-2xl tracking-[0.5em] font-mono py-4 focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent transition-all placeholder:text-slate-600"
                 placeholder="000000"
                 maxLength={6}
                 data-testid="verification-code-input"
@@ -286,7 +286,7 @@ const RegisterPage = () => {
             <div className="flex items-center justify-between pt-2">
               <button
                 onClick={() => setStep(1)}
-                className="text-slate-400 hover:text-white flex items-center gap-1.5 text-sm transition-colors duration-300"
+                className="text-[#A0A0A0] hover:text-[#E0E0E0] flex items-center gap-1.5 text-sm transition-colors duration-300"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back
@@ -294,7 +294,7 @@ const RegisterPage = () => {
               <button
                 onClick={handleResendCode}
                 disabled={loading}
-                className="text-[#7C3AED] hover:text-[#EC4899] text-sm font-medium transition-colors duration-300"
+                className="text-[#D4AF37] hover:text-[#D4AF37] text-sm font-medium transition-colors duration-300"
               >
                 Resend Code
               </button>
@@ -303,16 +303,16 @@ const RegisterPage = () => {
         )}
 
         <div className="mt-8 pt-6 border-t border-white/10 text-center">
-          <p className="text-slate-400 text-sm">
+          <p className="text-[#A0A0A0] text-sm">
             Already have an account?{' '}
-            <Link to="/login" className="text-[#7C3AED] hover:text-[#EC4899] font-semibold transition-colors duration-300" data-testid="login-link">
+            <Link to="/login" className="text-[#D4AF37] hover:text-[#D4AF37] font-semibold transition-colors duration-300" data-testid="login-link">
               Login here
             </Link>
           </p>
         </div>
 
         <div className="mt-6 text-center">
-          <Link to="/" className="text-slate-500 hover:text-slate-300 text-sm transition-colors duration-300" data-testid="back-home-link">
+          <Link to="/" className="text-[#A0A0A0] hover:text-[#E0E0E0] text-sm transition-colors duration-300" data-testid="back-home-link">
             Back to Home
           </Link>
         </div>

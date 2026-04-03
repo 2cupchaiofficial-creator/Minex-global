@@ -33,7 +33,7 @@ const LandingPage = () => {
     background: { color: { value: 'transparent' } },
     fpsLimit: 60,
     particles: {
-      color: { value: ['#7C3AED', '#EC4899', '#06B6D4'] },
+      color: { value: ['#D4AF37', '#E5C158', '#B8962E'] },
       links: { enable: false },
       move: { enable: true, speed: 0.5, direction: 'none', random: true, straight: false, outModes: { default: 'out' } },
       number: { value: 50, density: { enable: true, area: 800 } },
@@ -112,18 +112,18 @@ const LandingPage = () => {
   ];
 
   const features = [
-    { icon: Award, title: 'Premium Returns', desc: 'Earn up to 1496.5% annualized returns with our advanced trading algorithms', gradient: 'from-[#7C3AED] to-[#EC4899]', size: 'lg' },
-    { icon: Globe, title: 'Global Network', desc: 'Build your worldwide team and earn commissions', gradient: 'from-[#06B6D4] to-[#7C3AED]', size: 'md' },
-    { icon: Lock, title: 'Bank-Grade Security', desc: 'Your assets are protected 24/7', gradient: 'from-[#EC4899] to-[#7C3AED]', size: 'md' },
-    { icon: Smartphone, title: 'Mobile First', desc: 'Trade anytime, anywhere', gradient: 'from-[#7C3AED] to-[#06B6D4]', size: 'sm' },
-    { icon: Wallet, title: 'Instant Payouts', desc: 'Real-time commission distribution', gradient: 'from-[#06B6D4] to-[#EC4899]', size: 'sm' },
-    { icon: TrendingUp, title: 'Automated ROI', desc: 'Earn passive income daily', gradient: 'from-[#EC4899] to-[#06B6D4]', size: 'sm' }
+    { icon: Award, title: 'Premium Returns', desc: 'Earn up to 1496.5% annualized returns with our advanced trading algorithms', gradient: 'from-[#D4AF37] to-[#B8962E]', size: 'lg' },
+    { icon: Globe, title: 'Global Network', desc: 'Build your worldwide team and earn commissions', gradient: 'from-[#D4AF37] to-[#E5C158]', size: 'md' },
+    { icon: Lock, title: 'Bank-Grade Security', desc: 'Your assets are protected 24/7', gradient: 'from-[#B8962E] to-[#D4AF37]', size: 'md' },
+    { icon: Smartphone, title: 'Mobile First', desc: 'Trade anytime, anywhere', gradient: 'from-[#D4AF37] to-[#B8962E]', size: 'sm' },
+    { icon: Wallet, title: 'Instant Payouts', desc: 'Real-time commission distribution', gradient: 'from-[#E5C158] to-[#D4AF37]', size: 'sm' },
+    { icon: TrendingUp, title: 'Automated ROI', desc: 'Earn passive income daily', gradient: 'from-[#D4AF37] to-[#E5C158]', size: 'sm' }
   ];
 
   return (
-    <div className="min-h-screen bg-[#0F172A] overflow-x-hidden">
+    <div className="min-h-screen bg-[#0A0A0A] overflow-x-hidden">
       {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-[#0F172A]/80 backdrop-blur-2xl border-b border-white/5" data-testid="landing-navbar">
+      <nav className="fixed top-0 w-full z-50 bg-[#0A0A0A]/90 backdrop-blur-2xl border-b border-[#D4AF37]/10" data-testid="landing-navbar">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="flex justify-between items-center h-16 md:h-20">
             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center space-x-2">
@@ -131,7 +131,7 @@ const LandingPage = () => {
             </motion.div>
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center space-x-2 md:space-x-4">
               <Link to="/login" data-testid="nav-login-btn">
-                <button className="text-sm md:text-base px-4 md:px-6 py-2.5 text-white border border-white/20 hover:border-[#7C3AED] hover:text-[#7C3AED] rounded-lg transition-all duration-300">Login</button>
+                <button className="text-sm md:text-base px-4 md:px-6 py-2.5 text-[#E0E0E0] border border-[#D4AF37]/30 hover:border-[#D4AF37] hover:text-[#D4AF37] rounded-lg transition-all duration-300">Login</button>
               </Link>
               <Link to="/register" data-testid="nav-register-btn">
                 <button className="btn-primary text-sm md:text-base px-4 md:px-6 py-2.5">Get Started</button>
@@ -145,29 +145,29 @@ const LandingPage = () => {
       <section className="relative pt-24 md:pt-32 pb-20 md:pb-32 min-h-screen flex items-center overflow-hidden" data-testid="hero-section">
         <Particles className="absolute inset-0 z-0" init={particlesInit} options={particlesOptions} />
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#7C3AED]/20 via-[#0F172A] to-[#EC4899]/10"></div>
-          <div className="absolute top-20 left-10 w-72 md:w-[500px] h-72 md:h-[500px] bg-[#7C3AED]/20 rounded-full blur-[120px] animate-pulse-slow"></div>
-          <div className="absolute bottom-20 right-10 w-72 md:w-[400px] h-72 md:h-[400px] bg-[#EC4899]/15 rounded-full blur-[100px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 md:w-[600px] h-96 md:h-[600px] bg-[#06B6D4]/10 rounded-full blur-[150px] animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/10 via-[#0A0A0A] to-[#D4AF37]/5"></div>
+          <div className="absolute top-20 left-10 w-72 md:w-[500px] h-72 md:h-[500px] bg-[#D4AF37]/15 rounded-full blur-[120px] animate-pulse-slow"></div>
+          <div className="absolute bottom-20 right-10 w-72 md:w-[400px] h-72 md:h-[400px] bg-[#D4AF37]/10 rounded-full blur-[100px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 md:w-[600px] h-96 md:h-[600px] bg-[#D4AF37]/5 rounded-full blur-[150px] animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
         </div>
         
         <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10 w-full">
           <div className="text-center">
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="mb-6">
-              <span className="inline-flex items-center gap-2 px-4 md:px-6 py-2 bg-[#7C3AED]/10 border border-[#7C3AED]/30 rounded-full text-[#7C3AED] text-xs md:text-sm font-semibold tracking-wide backdrop-blur-sm">
+              <span className="inline-flex items-center gap-2 px-4 md:px-6 py-2 bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-full text-[#D4AF37] text-xs md:text-sm font-semibold tracking-wide backdrop-blur-sm">
                 <Sparkles className="w-4 h-4" /> NEXT-GENERATION CRYPTO INVESTMENT
               </span>
             </motion.div>
 
-            <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight font-display" data-testid="hero-title">
+            <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-[#E0E0E0] mb-6 leading-tight font-display" data-testid="hero-title">
               <span className="block mb-2">Unlock Your</span>
               <span className="text-gradient block">
                 <TypeAnimation sequence={['Crypto Fortune', 2000, 'Financial Freedom', 2000, 'Passive Income', 2000, 'Investment Power', 2000]} wrapper="span" speed={50} repeat={Infinity} />
               </span>
             </motion.h1>
 
-            <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }} className="text-base md:text-lg lg:text-xl text-slate-400 mb-10 max-w-3xl mx-auto leading-relaxed px-4" data-testid="hero-subtitle">
-              Join the elite crypto trading community with <span className="text-[#7C3AED] font-semibold">up to 4.1% daily ROI</span>, multi-level commissions up to <span className="text-[#EC4899] font-semibold">18%</span>, and exclusive investment packages.
+            <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }} className="text-base md:text-lg lg:text-xl text-[#A0A0A0] mb-10 max-w-3xl mx-auto leading-relaxed px-4" data-testid="hero-subtitle">
+              Join the elite crypto trading community with <span className="text-[#D4AF37] font-semibold">up to 4.1% daily ROI</span>, multi-level commissions up to <span className="text-[#D4AF37] font-semibold">18%</span>, and exclusive investment packages.
             </motion.p>
 
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.6 }} className="flex flex-col sm:flex-row gap-4 justify-center px-4">
@@ -184,10 +184,10 @@ const LandingPage = () => {
             {/* Stats */}
             <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.8 }} className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 md:mt-24 max-w-4xl mx-auto">
               {[
-                { icon: TrendingUp, value: '4.1%', label: 'Daily ROI', color: '#7C3AED' },
-                { icon: Shield, value: '6', label: 'Levels', color: '#EC4899' },
-                { icon: Users, value: '18%', label: 'Commission', color: '#06B6D4' },
-                { icon: Zap, value: '365', label: 'Days Lock', color: '#7C3AED' },
+                { icon: TrendingUp, value: '4.1%', label: 'Daily ROI', color: '#D4AF37' },
+                { icon: Shield, value: '6', label: 'Levels', color: '#D4AF37' },
+                { icon: Users, value: '18%', label: 'Commission', color: '#D4AF37' },
+                { icon: Zap, value: '365', label: 'Days Lock', color: '#D4AF37' },
               ].map((item, idx) => {
                 const ItemIcon = item.icon;
                 return (
@@ -195,8 +195,8 @@ const LandingPage = () => {
                     <div className="p-3 rounded-xl inline-block mb-3" style={{ backgroundColor: `${item.color}20` }}>
                       <ItemIcon className="w-6 h-6" style={{ color: item.color }} />
                     </div>
-                    <div className="text-2xl md:text-3xl font-bold text-white">{item.value}</div>
-                    <div className="text-xs md:text-sm text-slate-500">{item.label}</div>
+                    <div className="text-2xl md:text-3xl font-bold text-[#E0E0E0]">{item.value}</div>
+                    <div className="text-xs md:text-sm text-[#A0A0A0]">{item.label}</div>
                   </motion.div>
                 );
               })}

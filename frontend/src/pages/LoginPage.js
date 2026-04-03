@@ -41,11 +41,11 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F172A] flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center px-4 py-12">
       {/* Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 md:w-[500px] h-72 md:h-[500px] bg-[#7C3AED]/20 rounded-full blur-[120px] animate-pulse-slow"></div>
-        <div className="absolute bottom-20 right-10 w-72 md:w-[400px] h-72 md:h-[400px] bg-[#EC4899]/15 rounded-full blur-[100px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-20 left-10 w-72 md:w-[500px] h-72 md:h-[500px] bg-[#D4AF37]/20 rounded-full blur-[120px] animate-pulse-slow"></div>
+        <div className="absolute bottom-20 right-10 w-72 md:w-[400px] h-72 md:h-[400px] bg-[#D4AF37]/15 rounded-full blur-[100px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
       </div>
       
       <motion.div
@@ -58,8 +58,8 @@ const LoginPage = () => {
           <Link to="/">
             <img src="https://customer-assets.emergentagent.com/job_a9d66ba7-0c44-4716-b6dc-8595a53033f1/artifacts/pwb3ur38_minxlogo.png" alt="MINEX" className="h-10 mx-auto mb-6" />
           </Link>
-          <h1 className="text-2xl md:text-3xl font-bold text-white mb-2 font-display" data-testid="login-title">Welcome Back</h1>
-          <p className="text-slate-400 text-sm">Login to access your dashboard</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-[#E0E0E0] mb-2 font-display" data-testid="login-title">Welcome Back</h1>
+          <p className="text-[#A0A0A0] text-sm">Login to access your dashboard</p>
         </div>
 
         {emailNotVerified && (
@@ -68,7 +68,7 @@ const LoginPage = () => {
               <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-amber-400 text-sm font-medium">Email Not Verified</p>
-                <p className="text-slate-400 text-xs mt-1">Please verify your email before logging in. Check your inbox for the verification code.</p>
+                <p className="text-[#A0A0A0] text-xs mt-1">Please verify your email before logging in. Check your inbox for the verification code.</p>
               </div>
             </div>
           </div>
@@ -76,7 +76,7 @@ const LoginPage = () => {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div data-testid="email-input-group">
-            <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
+            <label className="block text-sm font-medium text-[#E0E0E0] mb-2">Email</label>
             <input
               type="email"
               value={formData.email}
@@ -89,7 +89,7 @@ const LoginPage = () => {
           </div>
 
           <div data-testid="password-input-group">
-            <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
+            <label className="block text-sm font-medium text-[#E0E0E0] mb-2">Password</label>
             <input
               type="password"
               value={formData.password}
@@ -121,23 +121,23 @@ const LoginPage = () => {
           </button>
 
           <div className="text-right mt-2">
-            <Link to="/forgot-password" className="text-slate-400 hover:text-[#7C3AED] text-sm transition-colors duration-300" data-testid="forgot-password-link">
+            <Link to="/forgot-password" className="text-[#A0A0A0] hover:text-[#D4AF37] text-sm transition-colors duration-300" data-testid="forgot-password-link">
               Forgot Password?
             </Link>
           </div>
         </form>
 
         <div className="mt-8 pt-6 border-t border-white/10 text-center">
-          <p className="text-slate-400 text-sm">
+          <p className="text-[#A0A0A0] text-sm">
             Don't have an account?{' '}
-            <Link to="/register" className="text-[#7C3AED] hover:text-[#EC4899] font-semibold transition-colors duration-300" data-testid="register-link">
+            <Link to="/register" className="text-[#D4AF37] hover:text-[#D4AF37] font-semibold transition-colors duration-300" data-testid="register-link">
               Register here
             </Link>
           </p>
         </div>
 
         <div className="mt-6 text-center">
-          <Link to="/" className="text-slate-500 hover:text-slate-300 text-sm transition-colors duration-300" data-testid="back-home-link">
+          <Link to="/" className="text-[#A0A0A0] hover:text-[#E0E0E0] text-sm transition-colors duration-300" data-testid="back-home-link">
             Back to Home
           </Link>
         </div>
