@@ -62,9 +62,9 @@ const AdminWithdrawals = () => {
 
   const getStatusBadge = (status) => {
     const styles = {
-      approved: 'bg-green-500/20 text-green-400',
-      rejected: 'bg-red-500/20 text-red-400',
-      pending: 'bg-yellow-500/20 text-yellow-400'
+      approved: 'px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-medium uppercase tracking-wider',
+      rejected: 'px-3 py-1 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-medium uppercase tracking-wider',
+      pending: 'px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-medium uppercase tracking-wider'
     };
     return styles[status] || styles.pending;
   };
