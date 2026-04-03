@@ -8,7 +8,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://capital-release.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://minex-crypto-invest.preview.emergentagent.com').rstrip('/')
 
 # Test Credentials
 USER_EMAIL = "masteruser@gmail.com"
