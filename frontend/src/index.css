@@ -66,11 +66,11 @@
 @layer utilities {
     .text-gradient {
         @apply bg-clip-text text-transparent;
-        background: linear-gradient(135deg, #D4AF37 0%, #E5C158 50%, #D4AF37 100%);
+        background: linear-gradient(135deg, #FFFFFF 0%, #D4AF37 50%, #FFFFFF 100%);
     }
     .text-gradient-gold {
         @apply bg-clip-text text-transparent;
-        background: linear-gradient(90deg, #D4AF37, #E5C158);
+        background: linear-gradient(90deg, #FFFFFF, #D4AF37, #FFFFFF);
     }
     .glass {
         background: linear-gradient(135deg, #141414 0%, #1A1A1A 100%);

@@ -18,7 +18,10 @@ const RegisterPage = () => {
     full_name: '',
     password: '',
     confirmPassword: '',
-    referral_code: refCode || ''
+    referral_code: refCode || '',
+    country: '',
+    city: '',
+    whatsapp: ''
   });
   const [verificationCode, setVerificationCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -27,7 +30,11 @@ const RegisterPage = () => {
 
   const validateForm = () => {
     if (!formData.email || !formData.full_name || !formData.password || !formData.confirmPassword) {
-      toast.error('Please fill in all fields');
+      toast.error('Please fill in all required fields');
+      return false;
+    }
+    if (!formData.country || !formData.city || !formData.whatsapp) {
+      toast.error('Please fill in Country, City, and WhatsApp number');
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
@@ -198,6 +205,47 @@ const RegisterPage = () => {
                 required
                 data-testid="confirm-password-input"
               />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div data-testid="country-input-group">
+                <label className="block text-sm font-medium text-[#E0E0E0] mb-2">Country</label>
+                <input
+                  type="text"
+                  value={formData.country}
+                  onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                  className="input-dark"
+                  placeholder="Your country"
+                  required
+                  data-testid="country-input"
+                />
+              </div>
+              <div data-testid="city-input-group">
+                <label className="block text-sm font-medium text-[#E0E0E0] mb-2">City</label>
+                <input
+                  type="text"
+                  value={formData.city}
+                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  className="input-dark"
+                  placeholder="Your city"
+                  required
+                  data-testid="city-input"
+                />
+              </div>
+            </div>
+
+            <div data-testid="whatsapp-input-group">
+              <label className="block text-sm font-medium text-[#E0E0E0] mb-2">WhatsApp Number</label>
+              <input
+                type="tel"
+                value={formData.whatsapp}
+                onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                className="input-dark"
+                placeholder="+1 234 567 8900"
+                required
+                data-testid="whatsapp-input"
+              />
+              <p className="text-xs text-[#A0A0A0] mt-1.5">Include country code (e.g., +92, +1)</p>
             </div>
 
             <div data-testid="referral-input-group">

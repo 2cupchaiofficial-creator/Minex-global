@@ -112,6 +112,9 @@ class User(BaseModel):
     staked_amount: float = 0.0  # Currently active staked amount
     deposited_capital: float = 0.0  # LEVEL CALCULATION: Original deposits minus withdrawals (excludes ROI)
     fund_balance: float = 0.0  # FUND WALLET: Deposit funds available for staking (decreases when staked)
+    country: str = ""
+    city: str = ""
+    whatsapp: str = ""
     referral_code: str
     referred_by: Optional[str] = None
     direct_referrals: List[str] = Field(default_factory=list)
@@ -126,6 +129,9 @@ class UserCreate(BaseModel):
     full_name: str
     password: str
     referral_code: str  # Required - must have referral
+    country: str = ""
+    city: str = ""
+    whatsapp: str = ""
 
 class UserLogin(BaseModel):
     email: EmailStr
