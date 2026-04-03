@@ -433,6 +433,13 @@ Build a production-ready crypto investment platform called "MINEX GLOBAL" with:
 - **Testing:** All 22 tests passed (100% backend, 100% frontend)
 - **No functionality changes:** All business logic, calculations, APIs remain identical
 
+### Feb 4, 2026 (P0 - Registration Fields Verification)
+- **VERIFIED**: `/api/auth/register` endpoint correctly accepts and stores `country`, `city`, `whatsapp` fields
+- **VERIFIED**: MongoDB stores all new fields correctly (tested with curl + DB query)
+- **VERIFIED**: All user dashboard headings are visible (gold on dark background, consistent with Black & Gold theme)
+- **VERIFIED**: All user pages (Deposit, Withdraw, Transactions, Profile, Team, Commissions) have visible headings
+- Created `/app/memory/test_credentials.md` for testing agent
+
 ### Previous
 - Initial platform setup
 - User authentication and registration
@@ -440,9 +447,3 @@ Build a production-ready crypto investment platform called "MINEX GLOBAL" with:
 - Deposit/withdrawal flows
 - Automatic ROI scheduler
 - Email notification system
-
-### Dec 21, 2026 (Dashboard Cleanup)
-- Removed "Total Investment" from user dashboard, replaced with "Deposited Capital"
-- Added promotion reward transaction types to Transactions page filter
-- Added "Migrate Rewards to History" button on Admin Promotions page
-- All tests passing (100% backend, 100% frontend)
